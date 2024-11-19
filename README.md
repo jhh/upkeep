@@ -1,4 +1,6 @@
-# ${REPO_NAME}
+# Upkeep
+
+Upkeep home maintenance webapp.
 
 ## Direnv
 
