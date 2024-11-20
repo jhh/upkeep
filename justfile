@@ -10,8 +10,12 @@ init: pre-commit npm-install
 mypy:
     uv run mypy .
 
+# run tests
+test:
+    uv run pytest
+
 # run tests and create coverage report
-pytest:
+coverage:
     uv run pytest --cov --cov-report=html
     [[ -x /usr/bin/open ]] && /usr/bin/open htmlcov/index.html
 
@@ -30,6 +34,11 @@ migrate: (manage "migrate")
 
 # run the ipython repl
 shell: (manage "shell")
+
+# start a new app in upkeep module
+startapp appname:
+    uv run config/manage.py startapp {{ appname }}
+    mv {{ appname }} upkeep/
 
 # install pre-commit hooks
 pre-commit:

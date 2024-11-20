@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django_htmx",
     "config",
     "upkeep.ui",
+    "upkeep.core",
 ]
 
 MIDDLEWARE = [

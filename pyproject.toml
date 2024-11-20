@@ -14,6 +14,7 @@ dependencies = [
     "gunicorn>=23.0.0 ; sys_platform == 'linux'",
     "psycopg[binary,pool]>=3.2.3 ; sys_platform == 'linux'",
     "whitenoise>=6.8.2",
+    "python-dateutil>=2.9.0.post0",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -32,8 +33,10 @@ dev = [
     "rich >= 13.9.4",
 ]
 typing = [
+    { include-group = "test" },
     "django-stubs[compatible-mypy]>=5.1.1",
     "mypy>=1.13.0",
+    "types-python-dateutil>=2.9.0.20241003",
 ]
 test = [
     "pytest-cov>=6.0.0",
@@ -55,7 +58,6 @@ DJANGO_SETTINGS_MODULE = "config.settings"
 omit = ["manage.py", "wsgi.py", "asgi.py", "__init__.py"]
 
 [tool.mypy]
-exclude =  ["manage.py", "conftest.py"]
 plugins = ["mypy_django_plugin.main"]
 
 [[tool.mypy.overrides]]
