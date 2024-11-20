@@ -427,7 +427,7 @@ name = "psycopg"
 version = "3.2.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.13' and sys_platform == 'linux'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' and sys_platform == 'linux' and python_full_version >= '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d1/ad/7ce016ae63e231575df0498d2395d15f005f05e32d3a2d439038e1bd0851/psycopg-3.2.3.tar.gz", hash = "sha256:a5764f67c27bec8bfac85764d23c534af2c27b893550377e37ce59c12aac47a2", size = 155550 }
 wheels = [
@@ -545,6 +545,18 @@ wheels = [
 ]
 
 [[package]]
+name = "python-dateutil"
+version = "2.9.0.post0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "six" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/66/c0/0c8b6ad9f17a802ee498c46e004a0eb49bc148f2fd230864601a86dcf6db/python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3", size = 342432 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ec/57/56b9bcc3c9c6a792fcbaf139543cee77261f3651ca9da0c93f5c1221264b/python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427", size = 229892 },
+]
+
+[[package]]
 name = "python-dotenv"
 version = "1.0.1"
 source = { registry = "https://pypi.org/simple" }
@@ -633,6 +645,15 @@ wheels = [
 ]
 
 [[package]]
+name = "types-python-dateutil"
+version = "2.9.0.20241003"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/31/f8/f6ee4c803a7beccffee21bb29a71573b39f7037c224843eff53e5308c16e/types-python-dateutil-2.9.0.20241003.tar.gz", hash = "sha256:58cb85449b2a56d6684e41aeefb4c4280631246a0da1a719bdbe6f3fb0317446", size = 9210 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/35/d6/ba5f61958f358028f2e2ba1b8e225b8e263053bd57d3a79e2d2db64c807b/types_python_dateutil-2.9.0.20241003-py3-none-any.whl", hash = "sha256:250e1d8e80e7bbc3a6c99b907762711d1a1cdd00e978ad39cb5940f6f0a87f3d", size = 9693 },
+]
+
+[[package]]
 name = "types-pyyaml"
 version = "6.0.12.20240917"
 source = { registry = "https://pypi.org/simple" }
@@ -671,6 +692,7 @@ dependencies = [
     { name = "environs", extra = ["django"] },
     { name = "gunicorn", marker = "sys_platform == 'linux'" },
     { name = "psycopg", extra = ["binary", "pool"], marker = "sys_platform == 'linux'" },
+    { name = "python-dateutil" },
     { name = "whitenoise" },
 ]
 
@@ -685,6 +707,7 @@ dev = [
     { name = "pytest-django" },
     { name = "rich" },
     { name = "ruff" },
+    { name = "types-python-dateutil" },
 ]
 lint = [
     { name = "ruff" },
@@ -697,6 +720,10 @@ test = [
 typing = [
     { name = "django-stubs", extra = ["compatible-mypy"] },
     { name = "mypy" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-django" },
+    { name = "types-python-dateutil" },
 ]
 
 [package.metadata]
@@ -708,6 +735,7 @@ requires-dist = [
     { name = "environs", extras = ["django"], specifier = ">=11.0.0" },
     { name = "gunicorn", marker = "sys_platform == 'linux'", specifier = ">=23.0.0" },
     { name = "psycopg", extras = ["binary", "pool"], marker = "sys_platform == 'linux'", specifier = ">=3.2.3" },
+    { name = "python-dateutil", specifier = ">=2.9.0.post0" },
     { name = "whitenoise", specifier = ">=6.8.2" },
 ]
 
@@ -722,6 +750,7 @@ dev = [
     { name = "pytest-django", specifier = ">=4.9.0" },
     { name = "rich", specifier = ">=13.9.4" },
     { name = "ruff", specifier = ">=0.7.2" },
+    { name = "types-python-dateutil", specifier = ">=2.9.0.20241003" },
 ]
 lint = [{ name = "ruff", specifier = ">=0.7.2" }]
 test = [
@@ -732,6 +761,10 @@ test = [
 typing = [
     { name = "django-stubs", extras = ["compatible-mypy"], specifier = ">=5.1.1" },
     { name = "mypy", specifier = ">=1.13.0" },
+    { name = "pytest", specifier = ">=8.3.3" },
+    { name = "pytest-cov", specifier = ">=6.0.0" },
+    { name = "pytest-django", specifier = ">=4.9.0" },
+    { name = "types-python-dateutil", specifier = ">=2.9.0.20241003" },
 ]
 
 [[package]]
