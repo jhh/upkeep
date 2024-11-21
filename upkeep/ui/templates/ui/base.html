@@ -16,7 +16,20 @@
 </head>
 
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-<main id="main" class="container" hx-boost="true">
+<main id="main" class="container mt-3" hx-boost="true">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      {% for crumb in breadcrumbs %}
+        <li class="breadcrumb-item {% if not crumb.url %}active{% endif %}">
+          {% if crumb.url %}
+            <a href="{{ crumb.url }}">{{ crumb.name }}</a>
+          {% else %}
+            {{ crumb.name }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ol>
+  </nav>
   {% block main %}{% endblock %}
 </main>
 <div id="modals-here"
