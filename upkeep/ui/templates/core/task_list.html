@@ -1,5 +1,7 @@
 {% extends "ui/base.html" %}
+
 {% block page_title %}Tasks{% endblock %}
+
 {% block main %}
   <h1>Tasks</h1>
   {% for group in grouped_tasks %}
@@ -10,4 +12,4 @@
       {% endfor %}
     </ul>
   {% endfor %}
-{% endblock %}
+{% endblock main %}

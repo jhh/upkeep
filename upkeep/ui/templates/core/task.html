@@ -1,5 +1,7 @@
 {% extends "ui/base.html" %}
+
 {% block page_title %}Task{% endblock %}
+
 {% block main %}
   <h1>{{ task.area }}: {{ task.name }}</h1>
   <p>Duration: {{ task.duration }}</p>
@@ -45,4 +47,4 @@
     {% endfor %}
     </tbody>
   </table>
-{% endblock %}
+{% endblock main %}
