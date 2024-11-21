@@ -14,9 +14,9 @@
   {% django_htmx_script %}
 </head>
 
-<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-<main id="main" class="container mt-3" hx-boost="true">
-  <nav aria-label="breadcrumb">
+<body hx-boost="true">
+<main id="main" class="container mt-3">
+  <nav>
     <ol class="breadcrumb">
       {% for crumb in breadcrumbs %}
         <li class="breadcrumb-item {% if not crumb.url %}active{% endif %}">
