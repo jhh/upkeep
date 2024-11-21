@@ -16,7 +16,7 @@
 </head>
 
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-<main id="main" class="container">
+<main id="main" class="container" hx-boost="true">
   {% block main %}{% endblock %}
 </main>
 <div id="modals-here"
