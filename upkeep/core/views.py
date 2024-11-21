@@ -2,6 +2,7 @@
 from itertools import groupby
 from operator import itemgetter
 
+from django.http import Http404
 from django.shortcuts import render
 
 from .models import Area, Task
@@ -21,9 +22,18 @@ def tasks_view(request):
         if area:
             tasks = tasks.filter(area=area)
 
-        tasks = tasks.values("area__name", "name").order_by("area__name", "name")
+        tasks = tasks.values("area__name", "id", "name").order_by("area__name", "name")
         grouped_tasks = [
             {"area": key, "tasks": list(group)}
             for key, group in groupby(tasks, key=itemgetter("area__name"))
         ]
         return render(request, "core/task_list.html", {"grouped_tasks": grouped_tasks})
+
+
+def task_view(request, pk):
+    try:
+        task = Task.objects.select_related("area").get(pk=pk)
+    except Task.DoesNotExist:
+        raise Http404
+    if request.method == "GET":
+        return render(request, "core/task.html", {"task": task})

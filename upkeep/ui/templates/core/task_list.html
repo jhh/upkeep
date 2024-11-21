@@ -6,7 +6,7 @@
     <h2>{{ group.area }}</h2>
     <ul class="list-group">
       {% for task in group.tasks %}
-        <li class="list-group-item">{{ task.name }}</li>
+        <li class="list-group-item"><a href="{% url 'task' task.id %}">{{ task.name }}</a></li>
       {% endfor %}
     </ul>
   {% endfor %}
