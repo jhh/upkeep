@@ -1,10 +1,13 @@
 from django.conf import settings
 from django.contrib import admin
 from django.urls import path
-from django.views.generic import TemplateView
+from django.views.generic import RedirectView
+
+from upkeep.core.views import areas_view
 
 urlpatterns = [
-    path("", TemplateView.as_view(template_name="ui/home.html")),
+    path("", RedirectView.as_view(url="/areas"), name="home"),
+    path("areas/", areas_view, name="areas"),
     path("admin/", admin.site.urls),
 ]
 

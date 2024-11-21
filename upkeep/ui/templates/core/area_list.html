@@ -1,0 +1,12 @@
+{% extends "ui/base.html" %}
+{% block page_title %}Upkeep - Areas{% endblock %}
+{% block main %}
+  <h1>Areas</h1>
+  <div>
+    <ul class="list-group">
+      {% for area in areas %}
+        <li class="list-group-item">{{ area.name }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}
