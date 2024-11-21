@@ -11,7 +11,16 @@ from .models import Area, Task
 def areas_view(request):
     if request.method == "GET":
         areas = Area.objects.all()
-        return render(request, "core/area_list.html", {"areas": areas})
+
+        breadcrumbs = [
+            {"name": "Home", "url": None},
+        ]
+
+        return render(
+            request,
+            "core/area_list.html",
+            {"areas": areas, "breadcrumbs": breadcrumbs},
+        )
 
 
 def tasks_view(request):
@@ -27,7 +36,17 @@ def tasks_view(request):
             {"area": key, "tasks": list(group)}
             for key, group in groupby(tasks, key=itemgetter("area__name"))
         ]
-        return render(request, "core/task_list.html", {"grouped_tasks": grouped_tasks})
+
+        breadcrumbs = [
+            {"name": "Home", "url": "/"},
+            {"name": grouped_tasks[0]["area"] if area else "Tasks", "url": None},
+        ]
+
+        return render(
+            request,
+            "core/task_list.html",
+            {"grouped_tasks": grouped_tasks, "breadcrumbs": breadcrumbs},
+        )
 
 
 def task_view(request, pk):
@@ -35,5 +54,16 @@ def task_view(request, pk):
         task = Task.objects.select_related("area").get(pk=pk)
     except Task.DoesNotExist:
         raise Http404
+
     if request.method == "GET":
-        return render(request, "core/task.html", {"task": task})
+        breadcrumbs = [
+            {"name": "Home", "url": "/"},
+            {"name": task.area.name, "url": f"/tasks/?area={task.area.pk}"},
+            {"name": task.name, "url": None},
+        ]
+
+        return render(
+            request,
+            "core/task.html",
+            {"task": task, "breadcrumbs": breadcrumbs},
+        )
