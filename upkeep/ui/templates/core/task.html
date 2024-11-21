@@ -1,0 +1,48 @@
+{% extends "ui/base.html" %}
+{% block page_title %}Task{% endblock %}
+{% block main %}
+  <h1>{{ task.area }}: {{ task.name }}</h1>
+  <p>Duration: {{ task.duration }}</p>
+  <p>Interval: {{ task.interval }} {{ task.frequency }}</p>
+  <p>{{ task.notes }}</p>
+
+  <h2>Schedule</h2>
+  <table class="table">
+    <thead>
+    <tr>
+      <th scope="col">Due</th>
+      <th scope="col">Completed</th>
+      <th scope="col">Notes</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for schedule in task.schedules.all %}
+      <tr>
+        <td>{{ schedule.due_date }}</td>
+        <td>{{ schedule.completion_date }}</td>
+        <td>{{ schedule.notes }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Consumables</h2>
+  <table class="table">
+    <thead>
+    <tr>
+      <th scope="col">Consumable</th>
+      <th scope="col">Quantity</th>
+      <th scope="col">Notes</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for consumable in task.consumables.all %}
+      <tr>
+        <td>{{ consumable.name }}</td>
+        <td>{{ consumable.quantity }} {{ consumable.unit }}</td>
+        <td>{{ consumable.notes }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
