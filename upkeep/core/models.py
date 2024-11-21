@@ -8,6 +8,9 @@ class Area(models.Model):
     name = models.CharField(max_length=200)
     notes = models.TextField(blank=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Task(models.Model):
     name = models.CharField(max_length=200)
@@ -19,7 +22,7 @@ class Task(models.Model):
         choices=[("days", "Days"), ("weeks", "Weeks"), ("months", "Months")],
         default="months",
     )
-    areas = models.ManyToManyField(Area, related_name="tasks")
+    area = models.ForeignKey(Area, on_delete=models.CASCADE, related_name="tasks")
 
     def is_recurring(self):
         return self.interval is not None
@@ -37,7 +40,7 @@ class Task(models.Model):
                 return start_date + relativedelta(months=self.interval)
 
     def __str__(self):
-        return self.name
+        return f"{self.area.name} -> {self.name}"
 
 
 class Consumable(models.Model):
@@ -59,19 +62,32 @@ class Consumable(models.Model):
 class TaskConsumable(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     consumable = models.ForeignKey(Consumable, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
+    quantity = models.PositiveIntegerField(default=1)
 
     class Meta:
         unique_together = ("task", "consumable")
 
+    def __str__(self):
+        return f"{self.task.name} -> {self.consumable.name}"
+
 
 class Schedule(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="schedules")
     due_date = models.DateField()
-
-
-class TaskHistory(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
-    completed_at = models.DateTimeField(auto_now=True)
+    completion_date = models.DateField(blank=True, null=True)
     notes = models.TextField(blank=True)
+
+    def is_complete(self):
+        return self.completion_date is not None
+
+    def reschedule(self):
+        start_date = self.completion_date or datetime.date.today()
+        next_date = self.task.next_date(start_date)
+        if not next_date:
+            raise ValueError("Cannot reschedule a non-recurring task")
+        Schedule.objects.create(task=self.task, due_date=next_date)
+
+    def __str__(self):
+        if self.is_complete():
+            return f"{self.task.area.name} -> {self.task.name} [completed: {self.completion_date}]"
+        return f"{self.task.area.name} -> {self.task.name} [due: {self.due_date}]"
