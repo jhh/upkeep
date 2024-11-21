@@ -1,0 +1,13 @@
+{% extends "ui/base.html" %}
+{% block page_title %}Tasks{% endblock %}
+{% block main %}
+  <h1>Tasks</h1>
+  {% for group in grouped_tasks %}
+    <h2>{{ group.area }}</h2>
+    <ul class="list-group">
+      {% for task in group.tasks %}
+        <li class="list-group-item">{{ task.name }}</li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+{% endblock %}
