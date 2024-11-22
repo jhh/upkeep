@@ -36,3 +36,15 @@ def test_task_next_date_today():
     assert next_date.year == expected_next_date.year
     assert next_date.month == expected_next_date.month
     assert next_date.day == expected_next_date.day
+
+
+def test_task_not_recurring():
+    task = Task(name="test", frequency="days")
+    start_date = datetime.datetime(year=2024, month=1, day=1)
+    assert task.next_date(start_date) == start_date
+
+
+def test_task_bad_frequency():
+    task = Task(name="test", interval=1, frequency="bad")
+    with pytest.raises(ValueError):
+        task.next_date()
