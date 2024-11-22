@@ -3,12 +3,12 @@
 {% block page_title %}Task{% endblock %}
 
 {% block main %}
-  <h1>{{ task.area }}: {{ task.name }}</h1>
+  <h1 class="h2">{{ task.area }}: {{ task.name }}</h1>
   <p>Duration: {{ task.duration }}</p>
   <p>Interval: {{ task.interval }} {{ task.frequency }}</p>
   <p>{{ task.notes }}</p>
 
-  <h2>Schedule</h2>
+  <h2 class="h4">Schedule</h2>
   <table class="table">
     <thead>
     <tr>
@@ -28,7 +28,7 @@
     </tbody>
   </table>
 
-  <h2>Consumables</h2>
+  <h2 class="h4 pt-3">Consumables</h2>
   <table class="table">
     <thead>
     <tr>
