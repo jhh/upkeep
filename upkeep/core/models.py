@@ -29,7 +29,7 @@ class Task(models.Model):
 
     def next_date(self, start_date=datetime.date.today()):
         if not self.is_recurring():
-            return None
+            return start_date
 
         match self.frequency:
             case "days":
@@ -38,6 +38,8 @@ class Task(models.Model):
                 return start_date + relativedelta(weeks=self.interval)
             case "months":
                 return start_date + relativedelta(months=self.interval)
+            case _:
+                raise ValueError("bad frequency")
 
     def __str__(self):
         return f"{self.area.name} -> {self.name}"
