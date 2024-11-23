@@ -14,9 +14,16 @@
       inputs.pyproject-nix.follows = "pyproject-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    pyproject-build-systems = {
+      url = "github:pyproject-nix/build-system-pkgs";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.uv2nix.follows = "uv2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, uv2nix, pyproject-nix, ... }:
+  outputs = { self, nixpkgs, uv2nix, pyproject-nix, pyproject-build-systems, ... }:
     let
       inherit (nixpkgs) lib;
       forAllSystems = lib.genAttrs lib.systems.flakeExposed;
@@ -144,7 +151,13 @@
             };
 
           in
-          baseSet.overrideScope (lib.composeExtensions overlay pyprojectOverrides)
+          baseSet.overrideScope (
+            lib.composeManyExtensions [
+              pyproject-build-systems.overlays.default
+              overlay
+              pyprojectOverrides
+            ]
+          )
         );
 
       # Django static roots grouped per system
@@ -353,10 +366,12 @@
           pkgs = nixpkgs.legacyPackages.${system};
           editablePythonSet = pythonSets.${system}.overrideScope editableOverlay;
           venv = editablePythonSet.mkVirtualEnv "upkeep-dev-env" workspace.deps.all;
-          packages = with pkgs; [
-            just
-            nodejs
-            pre-commit
+          uv = uv2nix.packages.${system}.uv-bin;
+          packages = [
+            pkgs.just
+            pkgs.nodejs
+            pkgs.pre-commit
+            uv
           ];
         in
         {
