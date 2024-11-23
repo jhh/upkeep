@@ -8,6 +8,12 @@ class Area(models.Model):
     name = models.CharField(max_length=200)
     notes = models.TextField(blank=True)
 
+    def first_due_schedule(self):
+        schedules = []
+        for task in self.tasks.prefetch_related("schedules").all():
+            schedules += task.schedules.filter(completion_date__isnull=True).all()
+        return min(schedules, key=lambda s: s.due_date) if schedules else None
+
     def __str__(self):
         return self.name
 
@@ -40,6 +46,13 @@ class Task(models.Model):
                 return start_date + relativedelta(months=self.interval)
             case _:
                 raise ValueError("bad frequency")
+
+    def first_due_schedule(self):
+        return (
+            self.schedules.filter(completion_date__isnull=True)
+            .order_by("due_date")
+            .first()
+        )
 
     def __str__(self):
         return f"{self.area.name} -> {self.name}"
