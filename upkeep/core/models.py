@@ -53,7 +53,7 @@ class Consumable(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     tasks = models.ManyToManyField(
         Task,
-        through="TaskConsumable",
+        through="core.TaskConsumable",
         related_name="consumables",
     )
 
