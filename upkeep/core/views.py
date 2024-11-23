@@ -2,6 +2,7 @@
 from itertools import groupby
 from operator import itemgetter
 
+from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import render
 
@@ -10,7 +11,7 @@ from .models import Area, Task
 
 def areas_view(request):
     if request.method == "GET":
-        areas = Area.objects.all()
+        areas = Area.objects.annotate(task_count=Count("tasks")).all()
 
         breadcrumbs = [
             {"name": "Home", "url": None},

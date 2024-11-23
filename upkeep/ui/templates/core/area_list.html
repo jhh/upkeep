@@ -3,12 +3,28 @@
 {% block page_title %}Areas{% endblock %}
 
 {% block main %}
-  <h1>Areas</h1>
-  <div>
-    <ul class="list-group">
-      {% for area in areas %}
-        <li class="list-group-item"><a href="{% url 'tasks' %}?area={{ area.id }}">{{ area.name }}</a></li>
-      {% endfor %}
-    </ul>
-  </div>
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Area</th>
+      <th class="w-25">Tasks</th>
+      <th class="w-25">Next Due</thc>
+    </tr>
+    </thead>
+    <tbody>
+    {% for area in areas %}
+      <tr>
+        <td>{{ area.name }}</td>
+        <td><a href="{% url 'tasks' %}?area={{ area.id }}">{{ area.task_count }}</a></td>
+        {% if area.first_due_schedule.task %}
+          <td>
+            <a href="{% url 'task' area.first_due_schedule.task.id %}">{{ area.first_due_schedule.due_date }}</a>
+          </td>
+        {% else %}
+          <td></td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 {% endblock main %}
