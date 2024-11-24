@@ -73,4 +73,4 @@ ignore_missing_imports = true
 django_settings_module = "config.settings"
 
 [tool.ruff]
-line-length = 88
+line-length = 99
