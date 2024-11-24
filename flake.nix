@@ -141,7 +141,7 @@
                               machine.succeed("curl -sf http://localhost:8000/static/ui/main.css")
 
                             with subtest("Home page is live"):
-                              machine.succeed("curl -sf http://localhost:8000/ | grep 'Default page'")
+                              machine.succeed("curl -sLf http://localhost:8000/ | grep 'Upkeep'")
                           '';
                         };
                     };
