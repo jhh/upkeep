@@ -48,11 +48,7 @@ class Task(models.Model):
                 raise ValueError("bad frequency")
 
     def first_due_schedule(self):
-        return (
-            self.schedules.filter(completion_date__isnull=True)
-            .order_by("due_date")
-            .first()
-        )
+        return self.schedules.filter(completion_date__isnull=True).order_by("due_date").first()
 
     def __str__(self):
         return f"{self.area.name} -> {self.name}"

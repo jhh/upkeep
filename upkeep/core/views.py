@@ -33,22 +33,16 @@ def areas_view(request):
 
             areas.append(row)
 
-        breadcrumbs = [
-            {"name": "Home", "url": None},
-        ]
-
         return render(
             request,
             "core/area_list.html",
-            {"areas": areas, "breadcrumbs": breadcrumbs},
+            {"areas": areas},
         )
 
 
 def tasks_view(request):
     if request.method == "GET":
-        tasks_queryset = Task.objects.select_related("area").prefetch_related(
-            "schedules",
-        )
+        tasks_queryset = Task.objects.select_related("area").prefetch_related("schedules")
 
         area = request.GET.get("area")
         if area:
@@ -83,14 +77,8 @@ def task_view(request, pk):
         raise Http404
 
     if request.method == "GET":
-        breadcrumbs = [
-            {"name": "Home", "url": "/"},
-            {"name": task.area.name, "url": f"/tasks/?area={task.area.pk}"},
-            {"name": task.name, "url": None},
-        ]
-
         return render(
             request,
             "core/task.html",
-            {"task": task, "breadcrumbs": breadcrumbs},
+            {"task": task},
         )
