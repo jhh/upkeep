@@ -1,6 +1,4 @@
 # Create your views here.
-from itertools import groupby
-from operator import itemgetter
 
 from django.db.models import Count
 from django.http import Http404
@@ -48,27 +46,33 @@ def areas_view(request):
 
 def tasks_view(request):
     if request.method == "GET":
-        tasks = Task.objects.select_related("area")
+        tasks_queryset = Task.objects.select_related("area").prefetch_related(
+            "schedules",
+        )
 
         area = request.GET.get("area")
         if area:
-            tasks = tasks.filter(area=area)
+            tasks_queryset = tasks_queryset.filter(area=area)
 
-        tasks = tasks.values("area__name", "id", "name").order_by("area__name", "name")
-        grouped_tasks = [
-            {"area": key, "tasks": list(group)}
-            for key, group in groupby(tasks, key=itemgetter("area__name"))
-        ]
+        tasks = []
+        for task in tasks_queryset:
+            row = {
+                "id": task.id,
+                "area_name": task.area.name,
+                "name": task.name,
+            }
 
-        breadcrumbs = [
-            {"name": "Home", "url": "/"},
-            {"name": grouped_tasks[0]["area"] if area else "Tasks", "url": None},
-        ]
+            schedules = task.schedules.filter(completion_date__isnull=True).all()
+            if schedules:
+                first = min(schedules, key=lambda s: s.due_date)
+                row.update({"due_date": first.due_date})
+
+            tasks.append(row)
 
         return render(
             request,
             "core/task_list.html",
-            {"grouped_tasks": grouped_tasks, "breadcrumbs": breadcrumbs},
+            {"tasks": tasks},
         )
 
 
