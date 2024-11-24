@@ -3,13 +3,26 @@
 {% block page_title %}Tasks{% endblock %}
 
 {% block main %}
-  <h1>Tasks</h1>
-  {% for group in grouped_tasks %}
-    <h2>{{ group.area }}</h2>
-    <ul class="list-group">
-      {% for task in group.tasks %}
-        <li class="list-group-item"><a href="{% url 'task' task.id %}">{{ task.name }}</a></li>
-      {% endfor %}
-    </ul>
-  {% endfor %}
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Area</th>
+      <th>Task</th>
+      <th>Due</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for task in tasks %}
+      <tr>
+        <td>{{ task.area_name }}</td>
+        <td><a href="{% url 'task' task.id %}">{{ task.name }}</a></td>
+        {% if task.due_date %}
+          <td>{{ task.due_date }}</td>
+        {% else %}
+          <td></td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 {% endblock main %}
