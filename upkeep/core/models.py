@@ -8,8 +8,8 @@ class Area(models.Model):
     name = models.CharField(max_length=200)
     notes = models.TextField(blank=True)
 
-    def first_due_schedule(self):
-        schedules = []
+    def first_due_schedule(self) -> "Schedule | None":
+        schedules: list["Schedule"] = []
         for task in self.tasks.prefetch_related("schedules").all():
             schedules += task.schedules.filter(completion_date__isnull=True).all()
         return min(schedules, key=lambda s: s.due_date) if schedules else None
@@ -30,11 +30,11 @@ class Task(models.Model):
     )
     area = models.ForeignKey(Area, on_delete=models.CASCADE, related_name="tasks")
 
-    def is_recurring(self):
+    def is_recurring(self) -> bool:
         return self.interval is not None
 
-    def next_date(self, start_date=datetime.date.today()):
-        if not self.is_recurring():
+    def next_date(self, start_date=datetime.date.today()) -> datetime.date:
+        if not self.interval:
             return start_date
 
         match self.frequency:
@@ -47,11 +47,11 @@ class Task(models.Model):
             case _:
                 raise ValueError("bad frequency")
 
-    def first_due_schedule(self):
+    def first_due_schedule(self) -> "Schedule | None":
         return self.schedules.filter(completion_date__isnull=True).order_by("due_date").first()
 
     def __str__(self):
-        return f"{self.area.name} -> {self.name}"
+        return f"{self.name} ({self.id})"
 
 
 class Consumable(models.Model):
@@ -88,7 +88,7 @@ class Schedule(models.Model):
     completion_date = models.DateField(blank=True, null=True)
     notes = models.TextField(blank=True)
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         return self.completion_date is not None
 
     def reschedule(self):

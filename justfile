@@ -8,7 +8,7 @@ init: pre-commit npm-install
 
 # run mypy type checks
 mypy:
-    uv run mypy .
+    uv run mypy --check-untyped-defs .
 
 # run tests
 test:

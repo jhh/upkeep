@@ -43,10 +43,19 @@ def test_area_first_due_no_schedules():
     area = Area.objects.create(name="Test Area")
     Task.objects.create(name="Test Task", area=area)
     assert area.tasks.count() == 1
-    assert area.tasks.first().schedules.count() == 0
+    task = area.tasks.first()
+    assert task
+    assert task.schedules.count() == 0
     assert area.first_due_schedule() is None
 
 
 @pytest.mark.django_db
 def test_first_due_schedule(area):
     assert area.first_due_schedule().due_date == START_DATE
+
+
+@pytest.mark.django_db
+def test_first_due_equality(area):
+    first_due_schedule = area.first_due_schedule()
+    task: Task = area.tasks.first()
+    assert first_due_schedule == task.first_due_schedule()
