@@ -4,7 +4,7 @@ from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import render
 
-from .models import Area, Task
+from .models import Area, Schedule, Task
 
 
 def areas_view(request):
@@ -23,7 +23,7 @@ def areas_view(request):
                 "task_count": area.task_count,
             }
 
-            schedules = []
+            schedules: list[Schedule] = []
             for task in area.tasks.all():
                 schedules += task.schedules.filter(completion_date__isnull=True).all()
 

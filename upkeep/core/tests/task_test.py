@@ -25,7 +25,7 @@ def test_task_is_recurring():
 def test_task_next_date(interval, frequency, timedelta):
     task = Task(name="test", interval=interval, frequency=frequency)
     start_date = datetime.datetime(year=2024, month=1, day=1)
-    delta = task.next_date(start_date) - start_date
+    delta: datetime.timedelta = task.next_date(start_date) - start_date
     assert delta == timedelta
 
 
