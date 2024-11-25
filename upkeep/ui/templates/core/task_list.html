@@ -6,16 +6,18 @@
   <table class="table">
     <thead>
     <tr>
-      <th>Area</th>
       <th>Task</th>
+      <th>Area</th>
       <th>Due</th>
     </tr>
     </thead>
     <tbody>
     {% for task in tasks %}
       <tr>
+        <td><a href="{% url 'task' task.id %}"
+               class="link-underline link-underline-opacity-0"
+        >{{ task.name }}</a></td>
         <td>{{ task.area_name }}</td>
-        <td><a href="{% url 'task' task.id %}">{{ task.name }}</a></td>
         {% if task.due_date %}
           <td>{{ task.due_date }}</td>
         {% else %}
