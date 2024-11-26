@@ -57,7 +57,7 @@ class TaskForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         is_edit = self.instance.id is not None
         for field in ("interval", "frequency"):
-            self.fields[field].label = False
+            self.fields[field].label = None
 
         self.helper = FormHelper()
         self.helper.form_method = "post"
@@ -120,7 +120,7 @@ class ScheduleForm(forms.ModelForm):
         )
 
         tasks = Task.objects.select_related().values_list("id", "area__name", "name")
-        self.fields["task"].choices = [(t[0], f"{t[1]}: {t[2]}") for t in tasks]
+        self.fields["task"].choices = [(t[0], f"{t[1]}: {t[2]}") for t in tasks]  # type: ignore
 
         self.helper.layout = Layout(
             # Hidden("task", value=task_id),
