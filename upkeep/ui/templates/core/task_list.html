@@ -1,4 +1,5 @@
 {% extends "ui/base.html" %}
+{% load static %}
 
 {% block page_title %}Tasks{% endblock %}
 
@@ -7,6 +8,7 @@
     <thead>
     <tr>
       <th>Task</th>
+      <td></td>
       <th>Area</th>
       <th>Due</th>
     </tr>
@@ -17,6 +19,11 @@
         <td><a href="{% url 'task' task.id %}"
                class="link-underline link-underline-opacity-0"
         >{{ task.name }}</a></td>
+        <td>
+          <a href="{% url 'task_edit' task.id %}" class="edit-pencil" >
+            <img src="{% static 'ui/pencil.svg' %}" alt="edit">
+          </a>
+        </td>
         <td>{{ task.area_name }}</td>
         {% if task.due_date %}
           <td>{{ task.due_date }}</td>
@@ -27,4 +34,7 @@
     {% endfor %}
     </tbody>
   </table>
+  <div class="d-flex justify-content-end">
+    <a href="{% url 'task_new' %}" class="btn btn-outline-primary">Add Task</a>
+  </div>
 {% endblock main %}
