@@ -1,0 +1,8 @@
+{% extends "ui/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}Schedule{% endblock %}
+
+{% block main %}
+  {% crispy schedule_form %}
+{% endblock main %}

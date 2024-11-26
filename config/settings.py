@@ -139,5 +139,10 @@ LOGGING = {
             "level": env.log_level("LOG_LEVEL", default="INFO"),
             "propagate": True,
         },
+        "upkeep": {
+            "handlers": ["console"],
+            "level": env.log_level("LOG_LEVEL", default="INFO"),
+            "propagate": True,
+        },
     },
 }
