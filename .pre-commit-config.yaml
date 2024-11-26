@@ -43,8 +43,3 @@ repos:
     hooks:
     -   id: djade
         args: [--target-version, "5.1"]  # Replace with Django version
-
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort

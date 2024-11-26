@@ -14,7 +14,7 @@
   {% django_htmx_script %}
 </head>
 
-<body hx-boost="true">
+<body hx-boost="true" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
     <span class="navbar-brand mb-0 h1">
