@@ -5,7 +5,7 @@ from django.db import models
 
 
 class Area(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField("area name", max_length=200)
     notes = models.TextField(blank=True)
 
     def first_due_schedule(self) -> "Schedule | None":

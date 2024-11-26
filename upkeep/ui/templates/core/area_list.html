@@ -14,7 +14,7 @@
     <tbody>
     {% for area in areas %}
       <tr>
-        <td>{{ area.name }}</td>
+        <td><a href="{% url 'area' area.id %}">{{ area.name }}</a></td>
         <td><a href="{% url 'tasks' %}?area={{ area.id }}"
                class="link-underline link-underline-opacity-0"
         >{{ area.task_count }}</a></td>
@@ -31,4 +31,7 @@
     {% endfor %}
     </tbody>
   </table>
+  <div class="d-flex justify-content-end">
+    <a href="{% url 'area_new' %}" class="btn btn-outline-primary">Add Area</a>
+  </div>
 {% endblock main %}

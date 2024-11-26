@@ -2,11 +2,16 @@
 
 from django.db.models import Count
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.decorators.http import require_GET, require_http_methods
+from django_htmx.http import HttpResponseLocation
 
+from .forms import AreaForm
 from .models import Area, Schedule, Task
 
 
+@require_http_methods(["GET", "POST"])
 def areas_view(request):
     if request.method == "GET":
         area_queryset = (
@@ -38,6 +43,39 @@ def areas_view(request):
             "core/area_list.html",
             {"areas": areas},
         )
+
+    elif request.method == "POST":
+        form = AreaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("areas")
+        return render(request, "core/area_form.html", {"area_form": form})
+
+    elif request.method == "DELETE":
+        return HttpResponseLocation(reverse("areas"))
+
+
+@require_GET
+def new_area_view(request):
+    form = AreaForm()
+    return render(request, "core/area_form.html", {"area_form": form})
+
+
+@require_http_methods(["GET", "POST", "DELETE"])
+def area_view(request, pk):
+    area = get_object_or_404(Area, pk=pk)
+    if request.method == "GET":
+        form = AreaForm(instance=area)
+        return render(request, "core/area_form.html", {"area_form": form})
+    if request.method == "POST":
+        form = AreaForm(request.POST, instance=area)
+        if form.is_valid():
+            form.save()
+            return HttpResponseLocation(reverse("areas"))
+        return render(request, "core/area_form.html", {"area_form": form})
+    if request.method == "DELETE":
+        area.delete()
+        return HttpResponseLocation(reverse("areas"))
 
 
 def tasks_view(request):
