@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_GET, require_http_methods
 from django_htmx.http import HttpResponseLocation
 
-from .forms import AreaForm
+from .forms import AreaForm, TaskForm
 from .models import Area, Schedule, Task
 
 
@@ -44,14 +44,14 @@ def areas_view(request):
             {"areas": areas},
         )
 
-    elif request.method == "POST":
+    if request.method == "POST":
         form = AreaForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect("areas")
         return render(request, "core/area_form.html", {"area_form": form})
 
-    elif request.method == "DELETE":
+    if request.method == "DELETE":
         return HttpResponseLocation(reverse("areas"))
 
 
@@ -64,20 +64,24 @@ def new_area_view(request):
 @require_http_methods(["GET", "POST", "DELETE"])
 def area_view(request, pk):
     area = get_object_or_404(Area, pk=pk)
+
     if request.method == "GET":
         form = AreaForm(instance=area)
         return render(request, "core/area_form.html", {"area_form": form})
+
     if request.method == "POST":
         form = AreaForm(request.POST, instance=area)
         if form.is_valid():
             form.save()
             return HttpResponseLocation(reverse("areas"))
         return render(request, "core/area_form.html", {"area_form": form})
+
     if request.method == "DELETE":
         area.delete()
         return HttpResponseLocation(reverse("areas"))
 
 
+@require_http_methods(["GET", "POST"])
 def tasks_view(request):
     if request.method == "GET":
         tasks_queryset = Task.objects.select_related("area").prefetch_related("schedules")
@@ -106,6 +110,39 @@ def tasks_view(request):
             "core/task_list.html",
             {"tasks": tasks},
         )
+
+    if request.method == "POST":
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("tasks")
+        return render(request, "core/task_form.html", {"task_form": form})
+
+
+@require_GET
+def new_task_view(request):
+    form = TaskForm()
+    return render(request, "core/task_form.html", {"task_form": form})
+
+
+@require_http_methods(["GET", "POST", "DELETE"])
+def edit_task_view(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+
+    if request.method == "GET":
+        form = TaskForm(instance=task)
+        return render(request, "core/task_form.html", {"task_form": form})
+
+    if request.method == "POST":
+        form = TaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            return HttpResponseLocation(reverse("tasks"))
+        return render(request, "core/area_form.html", {"area_form": form})
+
+    if request.method == "DELETE":
+        task.delete()
+        return HttpResponseLocation(reverse("tasks"))
 
 
 def task_view(request, pk):

@@ -19,7 +19,7 @@ class Area(models.Model):
 
 
 class Task(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField("task name", max_length=200)
     notes = models.TextField(blank=True)
     duration = models.DurationField(blank=True, null=True)
     interval = models.PositiveIntegerField(blank=True, null=True)
@@ -77,9 +77,6 @@ class TaskConsumable(models.Model):
 
     class Meta:
         unique_together = ("task", "consumable")
-
-    def __str__(self):
-        return f"{self.task.name} -> {self.consumable.name}"
 
 
 class Schedule(models.Model):

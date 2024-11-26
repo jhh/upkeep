@@ -1,1 +1,4 @@
 @use "bootstrap/scss/bootstrap";
+
+.edit-pencil {opacity: 0; };
+tr:hover .edit-pencil {opacity: 100 !important;}

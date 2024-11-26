@@ -3,7 +3,15 @@ from django.contrib import admin
 from django.urls import path
 from django.views.generic import RedirectView
 
-from upkeep.core.views import area_view, areas_view, new_area_view, task_view, tasks_view
+from upkeep.core.views import (
+    area_view,
+    areas_view,
+    edit_task_view,
+    new_area_view,
+    new_task_view,
+    task_view,
+    tasks_view,
+)
 
 urlpatterns = [
     path("", RedirectView.as_view(url="/areas"), name="home"),
@@ -12,6 +20,8 @@ urlpatterns = [
     path("areas/new/", new_area_view, name="area_new"),
     path("tasks/", tasks_view, name="tasks"),
     path("tasks/<int:pk>/", task_view, name="task"),
+    path("tasks/<int:pk>/edit", edit_task_view, name="task_edit"),
+    path("tasks/new/", new_task_view, name="task_new"),
     path("admin/", admin.site.urls),
 ]
 
