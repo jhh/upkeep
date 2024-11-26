@@ -1,4 +1,5 @@
 # Create your views here.
+import logging
 
 from django.db.models import Count
 from django.http import Http404
@@ -7,8 +8,10 @@ from django.urls import reverse
 from django.views.decorators.http import require_GET, require_http_methods
 from django_htmx.http import HttpResponseLocation
 
-from .forms import AreaForm, TaskForm
+from .forms import AreaForm, ScheduleForm, TaskForm
 from .models import Area, Schedule, Task
+
+logger = logging.getLogger(__name__)
 
 
 @require_http_methods(["GET", "POST"])
@@ -147,7 +150,12 @@ def edit_task_view(request, pk):
 
 def task_view(request, pk):
     try:
-        task = Task.objects.select_related("area").get(pk=pk)
+        task = (
+            Task.objects.select_related("area")
+            .prefetch_related("schedules", "consumables")
+            .order_by("schedules__due_date")
+            .get(pk=pk)
+        )
     except Task.DoesNotExist:
         raise Http404
 
@@ -157,3 +165,49 @@ def task_view(request, pk):
             "core/task.html",
             {"task": task},
         )
+
+
+@require_http_methods(["GET", "POST"])
+def new_schedule_view(request):
+    if request.method == "GET":
+        task_id = request.GET.get("task")
+        form = ScheduleForm(initial={"task": task_id})
+        return render(request, "core/schedule_form.html", {"schedule_form": form})
+
+    form = ScheduleForm(request.POST)
+    if form.is_valid():
+        form.save()
+        return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
+    return render(request, "core/schedule_form.html", {"schedule_form": form})
+
+
+@require_http_methods(["GET", "POST", "DELETE"])
+def edit_schedule_view(request, pk):
+    try:
+        schedule = Schedule.objects.select_related("task").get(pk=pk)
+    except Task.DoesNotExist:
+        raise Http404
+
+    if request.method == "GET":
+        form = ScheduleForm(instance=schedule)
+        return render(request, "core/schedule_form.html", {"schedule_form": form})
+
+    if request.method == "POST":
+        form = ScheduleForm(request.POST, instance=schedule)
+        if form.is_valid():
+            form.save()
+            return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
+        return render(request, "core/schedule_form.html", {"schedule_form": form})
+
+    if request.method == "DELETE":
+        id = schedule.task.id
+        schedule.delete()
+        return HttpResponseLocation(reverse("task", args=[id]))
+
+
+def new_consumable_view(request):
+    pass
+
+
+def edit_consumable_view(request):
+    pass

@@ -1,4 +1,5 @@
 {% extends "ui/base.html" %}
+{% load static %}
 
 {% block page_title %}Task{% endblock %}
 
@@ -13,6 +14,7 @@
     <thead>
     <tr>
       <th scope="col">Due</th>
+      <th></th>
       <th scope="col">Completed</th>
       <th scope="col">Notes</th>
     </tr>
@@ -21,12 +23,27 @@
     {% for schedule in task.schedules.all %}
       <tr>
         <td>{{ schedule.due_date }}</td>
-        <td>{{ schedule.completion_date }}</td>
+        <td>
+          <div class="d-flex gap-3 edit-pencil">
+            <a
+            hx-delete="{% url 'schedule_edit' schedule.id %}"
+            hx-confirm="Delete schedule due {{ schedule.due_date }}?"
+            href="#"
+            ><img src="{% static 'ui/trash.svg' %}" alt="delete"></a>
+            <a href="{% url 'schedule_edit' schedule.id %}">
+              <img src="{% static 'ui/pencil.svg' %}" alt="edit">
+            </a>
+          </div>
+        </td>
+        <td>{{ schedule.completion_date|default:'' }}</td>
         <td>{{ schedule.notes }}</td>
       </tr>
     {% endfor %}
     </tbody>
   </table>
+    <div class="d-flex justify-content-end">
+    <a href="{% url 'schedule_new' %}?task={{ task.id }}" class="btn btn-outline-primary">Add Schedule</a>
+  </div>
 
   <h2 class="h4 pt-3">Consumables</h2>
   <table class="table">
@@ -47,4 +64,7 @@
     {% endfor %}
     </tbody>
   </table>
+    <div class="d-flex justify-content-end">
+    <a href="{% url 'consumable_new' %}" class="btn btn-outline-primary">Add Consumable</a>
+  </div>
 {% endblock main %}

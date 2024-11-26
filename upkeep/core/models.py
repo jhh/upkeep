@@ -94,3 +94,6 @@ class Schedule(models.Model):
         if not next_date:
             raise ValueError("Cannot reschedule a non-recurring task")
         Schedule.objects.create(task=self.task, due_date=next_date)
+
+    class Meta:
+        ordering = ("due_date",)
