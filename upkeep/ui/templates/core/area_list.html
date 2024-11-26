@@ -1,4 +1,5 @@
 {% extends "ui/base.html" %}
+{% load static %}
 
 {% block page_title %}Areas{% endblock %}
 
@@ -7,14 +8,20 @@
     <thead>
     <tr>
       <th>Area</th>
+      <th></th>
       <th class="w-25">Tasks</th>
-      <th class="w-25">Next Due</thc>
+      <th class="w-25">Next Due</th
     </tr>
     </thead>
     <tbody>
     {% for area in areas %}
       <tr>
-        <td><a href="{% url 'area' area.id %}">{{ area.name }}</a></td>
+        <td><a href="{% url 'tasks' %}?area={{ area.id }}">{{ area.name }}</a></td>
+        <td>
+          <a href="{% url 'area' area.id %}" class="edit-pencil" >
+            <img src="{% static 'ui/pencil.svg' %}" alt="edit">
+          </a>
+        </td>
         <td><a href="{% url 'tasks' %}?area={{ area.id }}"
                class="link-underline link-underline-opacity-0"
         >{{ area.task_count }}</a></td>
