@@ -8,8 +8,8 @@ from django.urls import reverse
 from django.views.decorators.http import require_GET, require_http_methods
 from django_htmx.http import HttpResponseLocation
 
-from .forms import AreaForm, ScheduleForm, TaskForm
-from .models import Area, Schedule, Task
+from .forms import AreaForm, ConsumableForm, ScheduleForm, TaskForm
+from .models import Area, Consumable, Schedule, Task
 
 logger = logging.getLogger(__name__)
 
@@ -200,14 +200,45 @@ def edit_schedule_view(request, pk):
         return render(request, "core/schedule_form.html", {"schedule_form": form})
 
     if request.method == "DELETE":
-        id = schedule.task.id
+        task_id = schedule.task.id
         schedule.delete()
-        return HttpResponseLocation(reverse("task", args=[id]))
+        return HttpResponseLocation(reverse("task", args=[task_id]))
 
 
+@require_GET
+def consumables_view(request):
+    consumables = Consumable.objects.all()
+    return render(request, "core/consumable_list.html", {"consumables": consumables})
+
+
+@require_http_methods(["GET", "POST"])
 def new_consumable_view(request):
-    pass
+    if request.method == "GET":
+        form = ConsumableForm()
+        return render(request, "core/consumable_form.html", {"consumable_form": form})
+
+    form = ConsumableForm(request.POST)
+    if form.is_valid():
+        form.save()
+        return HttpResponseLocation(reverse("consumables"))
+    return render(request, "core/consumable_form.html", {"consumable_form": form})
 
 
-def edit_consumable_view(request):
-    pass
+@require_http_methods(["GET", "POST", "DELETE"])
+def edit_consumable_view(request, pk):
+    consumable = get_object_or_404(Consumable, pk=pk)
+
+    if request.method == "GET":
+        form = ConsumableForm(instance=consumable)
+        return render(request, "core/consumable_form.html", {"consumable_form": form})
+
+    if request.method == "POST":
+        form = ConsumableForm(request.POST, instance=consumable)
+        if form.is_valid():
+            form.save()
+            return HttpResponseLocation(reverse("consumables"))
+        return render(request, "core/consumable_form.html", {"consumable_form": form})
+
+    if request.method == "DELETE":
+        consumable.delete()
+        return HttpResponseLocation(reverse("consumables"))
