@@ -1,0 +1,36 @@
+{% extends "ui/base.html" %}
+{% load static %}
+
+{% block page_title %}Consumables{% endblock %}
+
+{% block main %}
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Consumable</th>
+      <th></th>
+      <th class="w-25">Quantity</th>
+      <th class="w-25">Units</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for consumable in consumables %}
+      <tr>
+        <td>{{ consumable.name }}</td>
+        <td>
+          <a href="{% url 'consumable_edit' consumable.id %}" class="edit-pencil" >
+            <img src="{% static 'ui/pencil.svg' %}" alt="edit">
+          </a>
+        </td>
+        <td>{{ consumable.quantity }}</td>
+          <td>
+            {{ consumable.unit }}
+          </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <div class="d-flex justify-content-end">
+    <a href="{% url 'consumable_new' %}" class="btn btn-outline-primary">Add Consumable</a>
+  </div>
+{% endblock main %}
