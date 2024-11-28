@@ -52,7 +52,7 @@ def areas_view(request):
         if form.is_valid():
             form.save()
             return redirect("areas")
-        return render(request, "core/area_form.html", {"area_form": form})
+        return render(request, "core/form.html", {"title": "area form", "form": form})
 
     if request.method == "DELETE":
         return HttpResponseLocation(reverse("areas"))
@@ -61,7 +61,7 @@ def areas_view(request):
 @require_GET
 def new_area_view(request):
     form = AreaForm()
-    return render(request, "core/area_form.html", {"area_form": form})
+    return render(request, "core/form.html", {"title": "area form", "form": form})
 
 
 @require_http_methods(["GET", "POST", "DELETE"])
@@ -70,14 +70,14 @@ def area_view(request, pk):
 
     if request.method == "GET":
         form = AreaForm(instance=area)
-        return render(request, "core/area_form.html", {"area_form": form})
+        return render(request, "core/form.html", {"title": "area form", "form": form})
 
     if request.method == "POST":
         form = AreaForm(request.POST, instance=area)
         if form.is_valid():
             form.save()
             return HttpResponseLocation(reverse("areas"))
-        return render(request, "core/area_form.html", {"area_form": form})
+        return render(request, "core/form.html", {"title": "area form", "form": form})
 
     if request.method == "DELETE":
         area.delete()
@@ -119,13 +119,13 @@ def tasks_view(request):
         if form.is_valid():
             form.save()
             return redirect("tasks")
-        return render(request, "core/task_form.html", {"task_form": form})
+        return render(request, "core/form.html", {"title": "task form", "form": form})
 
 
 @require_GET
 def new_task_view(request):
     form = TaskForm()
-    return render(request, "core/task_form.html", {"task_form": form})
+    return render(request, "core/form.html", {"title": "task form", "form": form})
 
 
 @require_http_methods(["GET", "POST", "DELETE"])
@@ -134,14 +134,14 @@ def edit_task_view(request, pk):
 
     if request.method == "GET":
         form = TaskForm(instance=task)
-        return render(request, "core/task_form.html", {"task_form": form})
+        return render(request, "core/form.html", {"title": "task form", "form": form})
 
     if request.method == "POST":
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
             return HttpResponseLocation(reverse("tasks"))
-        return render(request, "core/area_form.html", {"area_form": form})
+        return render(request, "core/form.html", {"title": "task form", "form": form})
 
     if request.method == "DELETE":
         task.delete()
@@ -172,13 +172,13 @@ def new_schedule_view(request):
     if request.method == "GET":
         task_id = request.GET.get("task")
         form = ScheduleForm(initial={"task": task_id})
-        return render(request, "core/schedule_form.html", {"schedule_form": form})
+        return render(request, "core/form.html", {"form": form})
 
     form = ScheduleForm(request.POST)
     if form.is_valid():
         form.save()
         return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
-    return render(request, "core/schedule_form.html", {"schedule_form": form})
+    return render(request, "core/form.html", {"form": form})
 
 
 @require_http_methods(["GET", "POST", "DELETE"])
@@ -190,14 +190,14 @@ def edit_schedule_view(request, pk):
 
     if request.method == "GET":
         form = ScheduleForm(instance=schedule)
-        return render(request, "core/schedule_form.html", {"schedule_form": form})
+        return render(request, "core/form.html", {"form": form})
 
     if request.method == "POST":
         form = ScheduleForm(request.POST, instance=schedule)
         if form.is_valid():
             form.save()
             return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
-        return render(request, "core/schedule_form.html", {"schedule_form": form})
+        return render(request, "core/form.html", {"form": form})
 
     if request.method == "DELETE":
         task_id = schedule.task.id
@@ -215,13 +215,13 @@ def consumables_view(request):
 def new_consumable_view(request):
     if request.method == "GET":
         form = ConsumableForm()
-        return render(request, "core/consumable_form.html", {"consumable_form": form})
+        return render(request, "core/form.html", {"title": "consumable form", "form": form})
 
     form = ConsumableForm(request.POST)
     if form.is_valid():
         form.save()
         return HttpResponseLocation(reverse("consumables"))
-    return render(request, "core/consumable_form.html", {"consumable_form": form})
+    return render(request, "core/form.html", {"title": "consumable form", "form": form})
 
 
 @require_http_methods(["GET", "POST", "DELETE"])
@@ -230,14 +230,14 @@ def edit_consumable_view(request, pk):
 
     if request.method == "GET":
         form = ConsumableForm(instance=consumable)
-        return render(request, "core/consumable_form.html", {"consumable_form": form})
+        return render(request, "core/form.html", {"form": form})
 
     if request.method == "POST":
         form = ConsumableForm(request.POST, instance=consumable)
         if form.is_valid():
             form.save()
             return HttpResponseLocation(reverse("consumables"))
-        return render(request, "core/consumable_form.html", {"consumable_form": form})
+        return render(request, "core/form.html", {"title": "consumable form", "form": form})
 
     if request.method == "DELETE":
         consumable.delete()
