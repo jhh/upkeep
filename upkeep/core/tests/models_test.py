@@ -8,9 +8,9 @@ from upkeep.core.models import Area, Schedule, Task
 START_DATE = date(2024, 1, 1)
 
 
+# noinspection PyUnusedLocal
 @pytest.fixture
-@pytest.mark.django_db
-def area():
+def area(db):
     area = Area.objects.create(name="Test Area")
 
     for i in range(3):

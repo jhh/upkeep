@@ -19,7 +19,7 @@ from upkeep.core.views import (
 )
 
 urlpatterns = [
-    path("", RedirectView.as_view(url="/areas"), name="home"),
+    path("", RedirectView.as_view(url="/areas/"), name="home"),
     path("areas/", areas_view, name="areas"),
     path("areas/<int:pk>/", area_view, name="area"),
     path("areas/new/", new_area_view, name="area_new"),
