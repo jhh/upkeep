@@ -2,6 +2,7 @@ import datetime
 
 from dateutil.relativedelta import relativedelta
 from django.db import models
+from django.db.models import Sum
 
 
 class Area(models.Model):
@@ -57,6 +58,7 @@ class Task(models.Model):
 class Consumable(models.Model):
     name = models.CharField(max_length=200)
     notes = models.TextField(blank=True)
+    url = models.URLField("consumable url", blank=True)
     unit = models.CharField(max_length=25)
     quantity = models.PositiveIntegerField()
     updated_at = models.DateTimeField(auto_now=True)
@@ -65,6 +67,11 @@ class Consumable(models.Model):
         through="core.TaskConsumable",
         related_name="consumables",
     )
+
+    def quantity_needed(self) -> int:
+        return TaskConsumable.objects.filter(consumable=self).aggregate(Sum("quantity"))[
+            "quantity__sum"
+        ]
 
     def __str__(self):
         return self.name

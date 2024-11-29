@@ -153,7 +153,7 @@ class ScheduleForm(forms.ModelForm):
 class ConsumableForm(forms.ModelForm):
     class Meta:
         model = Consumable
-        fields = ["name", "notes", "quantity", "unit"]
+        fields = ["name", "url", "notes", "quantity", "unit"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -170,6 +170,7 @@ class ConsumableForm(forms.ModelForm):
 
         self.helper.layout = Layout(
             Field("name", css_class="form-control"),
+            Field("url", css_class="form-control"),
             Field("quantity", css_class="form-control"),
             Field("unit", css_class="form-control"),
             Field("notes", css_class="form-control"),
