@@ -9,8 +9,10 @@
     <tr>
       <th>Consumable</th>
       <th></th>
-      <th class="w-25">Quantity</th>
-      <th class="w-25">Units</th>
+      <th>Required</th>
+      <th>On Hand</th>
+      <th>Units</th>
+      <th>Link</th>
     </tr>
     </thead>
     <tbody>
@@ -18,14 +20,21 @@
       <tr>
         <td>{{ consumable.name }}</td>
         <td>
-          <a href="{% url 'consumable_edit' consumable.id %}" class="edit-pencil" >
+          <a href="{% url 'consumable_edit' consumable.id %}" class="edit-pencil">
             <img src="{% static 'ui/pencil.svg' %}" alt="edit">
           </a>
         </td>
+        <td>{{ consumable.quantity_needed }}</td>
         <td>{{ consumable.quantity }}</td>
-          <td>
-            {{ consumable.unit }}
-          </td>
+        <td>
+          {{ consumable.unit }}
+        </td>
+        <td>
+          {% if consumable.url %}
+            <a href="{{ consumable.url }}" target="_blank" rel="noopener noreferrer"><img
+                src="{% static 'ui/box-arrow.svg' %}" alt="link"></a>
+          {% endif %}
+        </td>
       </tr>
     {% endfor %}
     </tbody>

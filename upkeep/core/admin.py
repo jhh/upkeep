@@ -4,7 +4,6 @@ from .models import Area, Consumable, Schedule, Task, TaskConsumable
 
 admin.site.register(Area)
 admin.site.register(Consumable)
-admin.site.register(TaskConsumable)
 
 
 @admin.register(Task)
@@ -19,3 +18,8 @@ class ScheduleAdmin(admin.ModelAdmin):
     list_display = ["task__area__name", "task__name", "due_date", "completion_date"]
     list_display_links = ["due_date", "completion_date"]
     list_select_related = True
+
+
+@admin.register(TaskConsumable)
+class TaskConsumableAdmin(admin.ModelAdmin):
+    list_display = ["id", "task__name", "consumable__name", "quantity"]

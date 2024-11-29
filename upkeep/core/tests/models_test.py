@@ -2,8 +2,9 @@ import datetime
 from datetime import date, timedelta
 
 import pytest
+from django.db import IntegrityError
 
-from upkeep.core.models import Area, Schedule, Task
+from upkeep.core.models import Area, Consumable, Schedule, Task, TaskConsumable
 
 START_DATE = date(2024, 1, 1)
 
@@ -105,3 +106,24 @@ def test_task_bad_frequency():
     task = Task(name="test", interval=1, frequency="bad")
     with pytest.raises(ValueError):
         task.next_date()
+
+
+@pytest.mark.django_db
+def test_task_consumable_unique(area):
+    tasks = Task.objects.all()
+    consumable = Consumable.objects.create(name="Test Consumable", quantity=0)
+    TaskConsumable.objects.create(task=tasks[0], consumable=consumable, quantity=1)
+    with pytest.raises(IntegrityError):
+        TaskConsumable.objects.create(task=tasks[0], consumable=consumable, quantity=1)
+
+
+@pytest.mark.django_db
+def test_task_consumable_needed(area):
+    tasks = Task.objects.all()
+    consumable = Consumable.objects.create(name="Test Consumable", quantity=0)
+    TaskConsumable.objects.create(task=tasks[0], consumable=consumable, quantity=1)
+    assert consumable.quantity_needed() == 1
+    TaskConsumable.objects.create(task=tasks[1], consumable=consumable, quantity=2)
+    assert consumable.quantity_needed() == 3
+    TaskConsumable.objects.create(task=tasks[2], consumable=consumable, quantity=3)
+    assert consumable.quantity_needed() == 6
