@@ -18,12 +18,12 @@
 </head>
 
 <body hx-boost="true" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-<nav class="navbar navbar-expand-lg bg-body-tertiary" {% if debug %}data-bs-theme="dark"{% endif %}>
+<nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
   <div class="container-fluid">
     <span class="navbar-brand mb-0 h1">
      <img src="{% static 'ui/wrench.svg' %}" alt="Logo" width="32" height="32"
           class="d-inline-block align-middle">
-      Upkeep
+      Upkeep {% if debug %}(development mode){% endif %}
     </span>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
