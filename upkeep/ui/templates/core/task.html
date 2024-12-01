@@ -51,7 +51,8 @@
     <tr>
       <th scope="col">Consumable</th>
       <th></th>
-      <th scope="col">Quantity</th>
+      <th scope="col">Required</th>
+      <th scope="col">On-Hand</th>
       <th scope="col">Notes</th>
     </tr>
     </thead>
@@ -71,7 +72,8 @@
             </a>
           </div>
         </td>
-        <td>{{ tc.consumable.quantity }} {{ tc.consumable.unit }}</td>
+        <td>{{ tc.quantity }}</td>
+        <td>{{ tc.consumable.quantity }}</td>
         <td>{{ tc.consumable.notes }}</td>
       </tr>
     {% endfor %}

@@ -60,7 +60,7 @@ class Consumable(models.Model):
     notes = models.TextField(blank=True)
     url = models.URLField("consumable url", blank=True)
     unit = models.CharField(max_length=25)
-    quantity = models.PositiveIntegerField()
+    quantity = models.PositiveIntegerField("quantity on-hand")
     updated_at = models.DateTimeField(auto_now=True)
     tasks = models.ManyToManyField(
         Task,
@@ -80,7 +80,7 @@ class Consumable(models.Model):
 class TaskConsumable(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     consumable = models.ForeignKey(Consumable, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
+    quantity = models.PositiveIntegerField("quantity required", default=1)
 
     class Meta:
         unique_together = ("task", "consumable")
