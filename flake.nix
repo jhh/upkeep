@@ -127,6 +127,7 @@
                                 enable = true;
                                 inherit venv;
                                 secrets = [ secrets ];
+                                port = 8001;
                               };
 
                               system.stateVersion = "24.11";
@@ -135,13 +136,13 @@
                           testScript = ''
                             with subtest("Check upkeep app comes up"):
                               machine.wait_for_unit("upkeep.service")
-                              machine.wait_for_open_port(8000)
+                              machine.wait_for_open_port(8001)
 
                             with subtest("Staticfiles are generated"):
-                              machine.succeed("curl -sf http://localhost:8000/static/ui/main.css")
+                              machine.succeed("curl -sf http://localhost:8001/static/ui/main.css")
 
                             with subtest("Home page is live"):
-                              machine.succeed("curl -sLf http://localhost:8000/ | grep 'Upkeep'")
+                              machine.succeed("curl -sLf http://localhost:8001/ | grep 'Upkeep'")
                           '';
                         };
                     };
@@ -223,6 +224,12 @@
                 '';
               };
 
+              port = lib.mkOption {
+                type = lib.types.port;
+                description = "Proxy port";
+                default = 8000;
+              };
+
               settings-module = mkOption {
                 type = lib.types.string;
                 default = settingsModules.prod;
@@ -270,7 +277,7 @@
                   EnvironmentFile = cfg.secrets;
                   ExecStartPre = "${cfg.venv}/bin/upkeep-manage migrate --no-input";
                   ExecStart = ''
-                    ${cfg.venv}/bin/gunicorn ${wsgiApp}
+                    ${cfg.venv}/bin/gunicorn --bind 0.0.0.0:${toString cfg.port} ${wsgiApp}
                   '';
                   Restart = "on-failure";
 
