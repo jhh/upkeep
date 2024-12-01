@@ -4,7 +4,7 @@ from crispy_forms.layout import HTML, Div, Field, Layout, Submit
 from django import forms
 from django.urls import reverse
 
-from upkeep.core.models import Area, Consumable, Schedule, Task
+from upkeep.core.models import Area, Consumable, Schedule, Task, TaskConsumable
 
 
 class AreaForm(forms.ModelForm):
@@ -160,7 +160,6 @@ class ConsumableForm(forms.ModelForm):
         is_edit = self.instance.id is not None
 
         self.helper = FormHelper()
-        self.helper.render_hidden_fields = True
         self.helper.form_method = "post"
         self.helper.form_action = (
             reverse("consumable_edit", args=[self.instance.id])
@@ -189,6 +188,50 @@ class ConsumableForm(forms.ModelForm):
                 HTML(f"""<button type="button" class="btn btn-outline-danger ms-auto"
                 hx-delete="{{% url 'consumable_edit' {self.instance.id} %}}"
                 hx-confirm="Delete this consumable?"
+                >Delete</button>""")
+                if is_edit
+                else None,
+                css_class="d-flex",
+            ),
+        )
+
+
+class TaskConsumableForm(forms.ModelForm):
+    class Meta:
+        model = TaskConsumable
+        fields = ["task", "consumable", "quantity"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        is_edit = self.instance.id is not None
+
+        self.helper = FormHelper()
+        self.helper.form_method = "post"
+
+        self.helper.form_action = (
+            reverse("task_consumable_edit", args=[self.instance.id])
+            if is_edit
+            else reverse("task_consumable_new", args=[self["task"].value()])
+        )
+        self.helper.layout = Layout(
+            Field("task", css_class="form-control"),
+            Field("consumable", css_class="form-control"),
+            Field("quantity", css_class="form-control"),
+            Div(
+                Submit(
+                    "submit",
+                    "Update" if is_edit else "Save",
+                    css_class="btn btn-primary",
+                ),
+                StrictButton(
+                    "Cancel",
+                    name="cancel",
+                    css_class="btn-secondary ms-2",
+                    onclick="window.history.back();",
+                ),
+                HTML(f"""<button type="button" class="btn btn-outline-danger ms-auto"
+                hx-delete="{{% url 'task_consumable_edit' {self.instance.id} %}}"
+                hx-confirm="Delete this consumable from {self.instance.task.name}?"
                 >Delete</button>""")
                 if is_edit
                 else None,
