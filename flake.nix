@@ -219,7 +219,7 @@
                 type = lib.types.bool;
                 default = false;
                 description = ''
-                  Enable upkeep
+                  Enable Upkeep
                 '';
               };
 
@@ -227,7 +227,7 @@
                 type = lib.types.string;
                 default = settingsModules.prod;
                 description = ''
-                  Django settings module
+                  Django settings module for Upkeep
                 '';
               };
 
@@ -235,7 +235,7 @@
                 type = lib.types.package;
                 default = pythonSet.mkVirtualEnv "upkeep-env" workspace.deps.default;
                 description = ''
-                  upkeep virtual environment package
+                  Upkeep virtual environment package
                 '';
               };
 
@@ -243,7 +243,7 @@
                 type = lib.types.package;
                 default = staticRoots.${system};
                 description = ''
-                  upkeep static root
+                  Upkeep static root
                 '';
               };
 
