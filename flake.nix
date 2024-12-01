@@ -277,7 +277,7 @@
                   EnvironmentFile = cfg.secrets;
                   ExecStartPre = "${cfg.venv}/bin/upkeep-manage migrate --no-input";
                   ExecStart = ''
-                    ${cfg.venv}/bin/gunicorn --bind 0.0.0.0:${toString cfg.port} ${wsgiApp}
+                    ${cfg.venv}/bin/gunicorn --bind 127.0.0.1:${toString cfg.port} ${wsgiApp}
                   '';
                   Restart = "on-failure";
 
