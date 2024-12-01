@@ -50,21 +50,34 @@
     <thead>
     <tr>
       <th scope="col">Consumable</th>
+      <th></th>
       <th scope="col">Quantity</th>
       <th scope="col">Notes</th>
     </tr>
     </thead>
     <tbody>
-    {% for consumable in task.consumables.all %}
+    {% for tc in task_consumables %}
       <tr>
-        <td>{{ consumable.name }}</td>
-        <td>{{ consumable.quantity }} {{ consumable.unit }}</td>
-        <td>{{ consumable.notes }}</td>
+        <td>{{ tc.consumable.name }}</td>
+        <td>
+          <div class="d-flex gap-3 edit-pencil">
+            <a
+                hx-delete="{% url 'task_consumable_edit' tc.id %}"
+                hx-confirm="Delete consumable {{ tc.consumable.name }}?"
+                href="#"
+            ><img src="{% static 'ui/trash.svg' %}" alt="delete"></a>
+            <a href="{% url 'task_consumable_edit' tc.id %}">
+              <img src="{% static 'ui/pencil.svg' %}" alt="edit">
+            </a>
+          </div>
+        </td>
+        <td>{{ tc.consumable.quantity }} {{ tc.consumable.unit }}</td>
+        <td>{{ tc.consumable.notes }}</td>
       </tr>
     {% endfor %}
     </tbody>
   </table>
     <div class="d-flex justify-content-end">
-    <a href="{% url 'consumable_new' %}" class="btn btn-outline-primary">Add Consumable</a>
+    <a href="{% url 'task_consumable_new' task.id %}" class="btn btn-outline-primary">Add Consumable</a>
   </div>
 {% endblock main %}

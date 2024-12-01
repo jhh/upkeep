@@ -9,10 +9,12 @@ from upkeep.core.views import (
     consumables_view,
     edit_consumable_view,
     edit_schedule_view,
+    edit_task_consumable_view,
     edit_task_view,
     new_area_view,
     new_consumable_view,
     new_schedule_view,
+    new_task_consumable_view,
     new_task_view,
     task_view,
     tasks_view,
@@ -32,6 +34,12 @@ urlpatterns = [
     path("consumables/", consumables_view, name="consumables"),
     path("consumables/<int:pk>/edit", edit_consumable_view, name="consumable_edit"),
     path("consumables/new/", new_consumable_view, name="consumable_new"),
+    path(
+        "task/consumables/<int:pk>/edit",
+        edit_task_consumable_view,
+        name="task_consumable_edit",
+    ),
+    path("task/<int:task>/consumables/new/", new_task_consumable_view, name="task_consumable_new"),
     path("admin/", admin.site.urls),
 ]
 
