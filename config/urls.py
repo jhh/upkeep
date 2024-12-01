@@ -40,6 +40,12 @@ urlpatterns = [
         name="task_consumable_edit",
     ),
     path("task/<int:task>/consumables/new/", new_task_consumable_view, name="task_consumable_new"),
+    path("favicon.ico", RedirectView.as_view(url="/static/ui/favicon.ico", permanent=True)),
+    path("icon.svg", RedirectView.as_view(url="/static/ui/icon.svg", permanent=True)),
+    path(
+        "apple-touch-icon.png",
+        RedirectView.as_view(url="/static/ui/apple-touch-icon.png", permanent=True),
+    ),
     path("admin/", admin.site.urls),
 ]
 
