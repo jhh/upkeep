@@ -231,7 +231,7 @@
               };
 
               settings-module = mkOption {
-                type = lib.types.string;
+                type = lib.types.str;
                 default = settingsModules.prod;
                 description = ''
                   Django settings module for Upkeep
