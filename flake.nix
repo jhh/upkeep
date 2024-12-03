@@ -384,6 +384,9 @@
         {
           impure = pkgs.mkShell {
             inherit packages;
+            shellHook = ''
+              export UV_PYTHON_DOWNLOADS=never
+            '';
           };
 
           default = pkgs.mkShell {
@@ -391,6 +394,7 @@
             shellHook = ''
               unset PYTHONPATH
               export REPO_ROOT=$(git rev-parse --show-toplevel)
+              export UV_PYTHON_DOWNLOADS=never
               export UV_NO_SYNC=1
             '';
           };
