@@ -28,6 +28,7 @@
       inherit (nixpkgs) lib;
       forAllSystems = lib.genAttrs lib.systems.flakeExposed;
 
+      pythonVersion = "python312";
       wsgiApp = "config.wsgi:application";
       settingsModules = {
         prod = "config.settings";
@@ -53,7 +54,7 @@
 
             # Base Python package set from pyproject.nix
             baseSet = pkgs.callPackage pyproject-nix.build.packages {
-              python = pkgs.python312;
+              python = pkgs.${pythonVersion};
             };
 
             # An overlay of build fixups & test additions
@@ -383,7 +384,11 @@
         in
         {
           impure = pkgs.mkShell {
-            inherit packages;
+            packages = packages ++ [ pkgs.${pythonVersion} ];
+            shellHook = ''
+              unset PYTHONPATH
+              export UV_PYTHON_DOWNLOADS=never
+            '';
           };
 
           default = pkgs.mkShell {
