@@ -384,9 +384,6 @@
         {
           impure = pkgs.mkShell {
             inherit packages;
-            shellHook = ''
-              export UV_PYTHON_DOWNLOADS=never
-            '';
           };
 
           default = pkgs.mkShell {
