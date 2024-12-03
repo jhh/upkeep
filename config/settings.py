@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from warnings import filterwarnings
 
 import environs
 
@@ -13,6 +14,10 @@ env.read_env(str(BASE_DIR / ".env"), recurse=False)
 DEBUG = env.bool("DEBUG", default=False)
 SECRET_KEY = env.str("DJANGO_SECRET_KEY", default="NOT A SECRET")
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+
+# Django 6 deprecation warning
+filterwarnings("ignore", "The FORMS_URLFIELD_ASSUME_HTTPS transitional setting is deprecated.")
+FORMS_URLFIELD_ASSUME_HTTPS = True
 
 # e.g. DJANGO_DATABASE_URL=postgres:///${REPO_NAME}?pool=true
 # uses a peer connection over default Unix socket with OPTION pool (default)
