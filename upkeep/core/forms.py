@@ -62,7 +62,7 @@ class TaskForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.form_action = (
-            reverse("task_edit", args=[self.instance.id]) if is_edit else reverse("tasks")
+            reverse("task_edit", args=[self.instance.id]) if is_edit else reverse("task_new")
         )
 
         self.helper.layout = Layout(

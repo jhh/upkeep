@@ -22,9 +22,7 @@
             <img src="{% static 'ui/pencil.svg' %}" alt="edit">
           </a>
         </td>
-        <td><a href="{% url 'tasks' %}?area={{ area.id }}"
-               class="link-underline link-underline-opacity-0"
-        >{{ area.task_count }}</a></td>
+        <td>{{ area.task_count }}</td>
         {% if area.due_task_id %}
           <td>
             <a href="{% url 'task' area.due_task_id %}"
