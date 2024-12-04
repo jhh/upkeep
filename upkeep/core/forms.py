@@ -19,7 +19,7 @@ class AreaForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.form_action = (
-            reverse("area", args=[self.instance.id]) if is_edit else reverse("areas")
+            reverse("area_edit", args=[self.instance.id]) if is_edit else reverse("area_new")
         )
 
         self.helper.layout = Layout(
@@ -38,7 +38,7 @@ class AreaForm(forms.ModelForm):
                     onclick="window.history.back();",
                 ),
                 HTML(f"""<button type="button" class="btn btn-outline-danger ms-auto"
-                hx-delete="{{% url 'area' {self.instance.id} %}}"
+                hx-delete="{{% url 'area_edit' {self.instance.id} %}}"
                 hx-confirm="Delete this area and all of its tasks?"
                 >Delete</button>""")
                 if is_edit
@@ -62,7 +62,7 @@ class TaskForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.form_action = (
-            reverse("task_edit", args=[self.instance.id]) if is_edit else reverse("tasks")
+            reverse("task_edit", args=[self.instance.id]) if is_edit else reverse("task_new")
         )
 
         self.helper.layout = Layout(

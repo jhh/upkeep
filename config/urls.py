@@ -4,9 +4,9 @@ from django.urls import path
 from django.views.generic import RedirectView
 
 from upkeep.core.views import (
-    area_view,
     areas_view,
     consumables_view,
+    edit_area_view,
     edit_consumable_view,
     edit_schedule_view,
     edit_task_consumable_view,
@@ -23,7 +23,7 @@ from upkeep.core.views import (
 urlpatterns = [
     path("", RedirectView.as_view(url="/areas/"), name="home"),
     path("areas/", areas_view, name="areas"),
-    path("areas/<int:pk>/", area_view, name="area"),
+    path("areas/<int:pk>/edit", edit_area_view, name="area_edit"),
     path("areas/new/", new_area_view, name="area_new"),
     path("tasks/", tasks_view, name="tasks"),
     path("tasks/<int:pk>/", task_view, name="task"),

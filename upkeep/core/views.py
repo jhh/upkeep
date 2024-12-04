@@ -1,7 +1,5 @@
 # Create your views here.
-import logging
 
-from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -10,42 +8,20 @@ from django_htmx.http import HttpResponseLocation
 
 from .forms import AreaForm, ConsumableForm, ScheduleForm, TaskConsumableForm, TaskForm
 from .models import Area, Consumable, Schedule, Task, TaskConsumable
+from .services import get_areas_tasks_schedules, get_tasks_schedules
 
-logger = logging.getLogger(__name__)
+
+@require_GET
+def areas_view(request):
+    areas = get_areas_tasks_schedules()
+    return render(request, "core/area_list.html", {"areas": areas})
 
 
 @require_http_methods(["GET", "POST"])
-def areas_view(request):
+def new_area_view(request):
     if request.method == "GET":
-        area_queryset = (
-            Area.objects.prefetch_related("tasks__schedules")
-            .annotate(task_count=Count("tasks"))
-            .all()
-        )
-
-        areas = []
-        for area in area_queryset:
-            row = {
-                "id": area.id,
-                "name": area.name,
-                "task_count": area.task_count,
-            }
-
-            schedules: list[Schedule] = []
-            for task in area.tasks.all():
-                schedules += task.schedules.filter(completion_date__isnull=True).all()
-
-            if schedules:
-                first = min(schedules, key=lambda s: s.due_date)
-                row.update({"due_date": first.due_date, "due_task_id": first.task_id})
-
-            areas.append(row)
-
-        return render(
-            request,
-            "core/area_list.html",
-            {"areas": areas},
-        )
+        form = AreaForm()
+        return render(request, "core/form.html", {"title": "area form", "form": form})
 
     if request.method == "POST":
         form = AreaForm(request.POST)
@@ -54,18 +30,9 @@ def areas_view(request):
             return redirect("areas")
         return render(request, "core/form.html", {"title": "area form", "form": form})
 
-    if request.method == "DELETE":
-        return HttpResponseLocation(reverse("areas"))
-
-
-@require_GET
-def new_area_view(request):
-    form = AreaForm()
-    return render(request, "core/form.html", {"title": "area form", "form": form})
-
 
 @require_http_methods(["GET", "POST", "DELETE"])
-def area_view(request, pk):
+def edit_area_view(request, pk):
     area = get_object_or_404(Area, pk=pk)
 
     if request.method == "GET":
@@ -84,35 +51,18 @@ def area_view(request, pk):
         return HttpResponseLocation(reverse("areas"))
 
 
-@require_http_methods(["GET", "POST"])
+@require_GET
 def tasks_view(request):
+    area = request.GET.get("area")
+    tasks = get_tasks_schedules(area)
+    return render(request, "core/task_list.html", {"tasks": tasks})
+
+
+@require_http_methods(["GET", "POST"])
+def new_task_view(request):
     if request.method == "GET":
-        tasks_queryset = Task.objects.select_related("area").prefetch_related("schedules")
-
-        area = request.GET.get("area")
-        if area:
-            tasks_queryset = tasks_queryset.filter(area=area)
-
-        tasks = []
-        for task in tasks_queryset:
-            row = {
-                "id": task.id,
-                "area_name": task.area.name,
-                "name": task.name,
-            }
-
-            schedules = task.schedules.filter(completion_date__isnull=True).all()
-            if schedules:
-                first = min(schedules, key=lambda s: s.due_date)
-                row.update({"due_date": first.due_date})
-
-            tasks.append(row)
-
-        return render(
-            request,
-            "core/task_list.html",
-            {"tasks": tasks},
-        )
+        form = TaskForm()
+        return render(request, "core/form.html", {"title": "task form", "form": form})
 
     if request.method == "POST":
         form = TaskForm(request.POST)
@@ -120,12 +70,6 @@ def tasks_view(request):
             form.save()
             return redirect("tasks")
         return render(request, "core/form.html", {"title": "task form", "form": form})
-
-
-@require_GET
-def new_task_view(request):
-    form = TaskForm()
-    return render(request, "core/form.html", {"title": "task form", "form": form})
 
 
 @require_http_methods(["GET", "POST", "DELETE"])
@@ -175,11 +119,12 @@ def new_schedule_view(request):
         form = ScheduleForm(initial={"task": task_id})
         return render(request, "core/form.html", {"form": form})
 
-    form = ScheduleForm(request.POST)
-    if form.is_valid():
-        form.save()
-        return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
-    return render(request, "core/form.html", {"form": form})
+    if request.method == "POST":
+        form = ScheduleForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
+        return render(request, "core/form.html", {"form": form})
 
 
 @require_http_methods(["GET", "POST", "DELETE"])
@@ -253,12 +198,12 @@ def new_task_consumable_view(request, task):
         form = TaskConsumableForm(initial={"task": task})
         return render(request, "core/form.html", {"title": "task consumable form", "form": form})
 
-    form = TaskConsumableForm(request.POST)
-    if form.is_valid():
-        logger.debug(form.cleaned_data)
-        form.save()
-        return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
-    return render(request, "core/form.html", {"title": "task consumable form", "form": form})
+    if request.method == "POST":
+        form = TaskConsumableForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
+        return render(request, "core/form.html", {"title": "task consumable form", "form": form})
 
 
 @require_http_methods(["GET", "POST", "DELETE"])
