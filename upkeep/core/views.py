@@ -1,7 +1,6 @@
 # Create your views here.
 import logging
 
-from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -10,6 +9,7 @@ from django_htmx.http import HttpResponseLocation
 
 from .forms import AreaForm, ConsumableForm, ScheduleForm, TaskConsumableForm, TaskForm
 from .models import Area, Consumable, Schedule, Task, TaskConsumable
+from .services import get_areas_tasks_schedules
 
 logger = logging.getLogger(__name__)
 
@@ -17,34 +17,10 @@ logger = logging.getLogger(__name__)
 @require_http_methods(["GET", "POST"])
 def areas_view(request):
     if request.method == "GET":
-        area_queryset = (
-            Area.objects.prefetch_related("tasks__schedules")
-            .annotate(task_count=Count("tasks"))
-            .all()
-        )
-
-        areas = []
-        for area in area_queryset:
-            row = {
-                "id": area.id,
-                "name": area.name,
-                "task_count": area.task_count,
-            }
-
-            schedules: list[Schedule] = []
-            for task in area.tasks.all():
-                schedules += task.schedules.filter(completion_date__isnull=True).all()
-
-            if schedules:
-                first = min(schedules, key=lambda s: s.due_date)
-                row.update({"due_date": first.due_date, "due_task_id": first.task_id})
-
-            areas.append(row)
-
         return render(
             request,
             "core/area_list.html",
-            {"areas": areas},
+            {"areas": get_areas_tasks_schedules()},
         )
 
     if request.method == "POST":
