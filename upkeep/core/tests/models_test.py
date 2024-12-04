@@ -1,30 +1,10 @@
 import datetime
-from datetime import date, timedelta
+from datetime import timedelta
 
 import pytest
 from django.db import IntegrityError
 
-from upkeep.core.models import Area, Consumable, Schedule, Task, TaskConsumable
-
-START_DATE = date(2024, 1, 1)
-
-
-# noinspection PyUnusedLocal
-@pytest.fixture
-def area(db):
-    area = Area.objects.create(name="Test Area")
-
-    for i in range(3):
-        task = Task.objects.create(name=f"{i}", area=area)
-        for j in range(3):
-            Schedule.objects.create(
-                task=task,
-                due_date=START_DATE + timedelta(days=i + j),
-                notes=f"{i}.{j}",
-            )
-    Task.objects.create(name="empty", area=area)
-
-    return area
+from upkeep.core.models import Area, Consumable, Task, TaskConsumable
 
 
 @pytest.mark.django_db
@@ -53,8 +33,8 @@ def test_area_first_due_no_schedules():
 
 
 @pytest.mark.django_db
-def test_first_due_schedule(area):
-    assert area.first_due_schedule().due_date == START_DATE
+def test_first_due_schedule(area, start_date):
+    assert area.first_due_schedule().due_date == start_date
 
 
 @pytest.mark.django_db
