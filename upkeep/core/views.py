@@ -14,14 +14,17 @@ from .services import get_areas_tasks_schedules
 logger = logging.getLogger(__name__)
 
 
-@require_http_methods(["GET", "POST"])
+@require_GET
 def areas_view(request):
+    areas = get_areas_tasks_schedules()
+    return render(request, "core/area_list.html", {"areas": areas})
+
+
+@require_http_methods(["GET", "POST"])
+def new_area_view(request):
     if request.method == "GET":
-        return render(
-            request,
-            "core/area_list.html",
-            {"areas": get_areas_tasks_schedules()},
-        )
+        form = AreaForm()
+        return render(request, "core/form.html", {"title": "area form", "form": form})
 
     if request.method == "POST":
         form = AreaForm(request.POST)
@@ -30,18 +33,9 @@ def areas_view(request):
             return redirect("areas")
         return render(request, "core/form.html", {"title": "area form", "form": form})
 
-    if request.method == "DELETE":
-        return HttpResponseLocation(reverse("areas"))
-
-
-@require_GET
-def new_area_view(request):
-    form = AreaForm()
-    return render(request, "core/form.html", {"title": "area form", "form": form})
-
 
 @require_http_methods(["GET", "POST", "DELETE"])
-def area_view(request, pk):
+def edit_area_view(request, pk):
     area = get_object_or_404(Area, pk=pk)
 
     if request.method == "GET":
@@ -151,11 +145,12 @@ def new_schedule_view(request):
         form = ScheduleForm(initial={"task": task_id})
         return render(request, "core/form.html", {"form": form})
 
-    form = ScheduleForm(request.POST)
-    if form.is_valid():
-        form.save()
-        return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
-    return render(request, "core/form.html", {"form": form})
+    if request.method == "POST":
+        form = ScheduleForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
+        return render(request, "core/form.html", {"form": form})
 
 
 @require_http_methods(["GET", "POST", "DELETE"])
@@ -229,12 +224,13 @@ def new_task_consumable_view(request, task):
         form = TaskConsumableForm(initial={"task": task})
         return render(request, "core/form.html", {"title": "task consumable form", "form": form})
 
-    form = TaskConsumableForm(request.POST)
-    if form.is_valid():
-        logger.debug(form.cleaned_data)
-        form.save()
-        return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
-    return render(request, "core/form.html", {"title": "task consumable form", "form": form})
+    if request.method == "POST":
+        form = TaskConsumableForm(request.POST)
+        if form.is_valid():
+            logger.debug(form.cleaned_data)
+            form.save()
+            return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
+        return render(request, "core/form.html", {"title": "task consumable form", "form": form})
 
 
 @require_http_methods(["GET", "POST", "DELETE"])

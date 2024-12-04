@@ -18,7 +18,7 @@
       <tr>
         <td><a href="{% url 'tasks' %}?area={{ area.id }}">{{ area.name }}</a></td>
         <td>
-          <a href="{% url 'area' area.id %}" class="edit-pencil" >
+          <a href="{% url 'area_edit' area.id %}" class="edit-pencil" >
             <img src="{% static 'ui/pencil.svg' %}" alt="edit">
           </a>
         </td>
