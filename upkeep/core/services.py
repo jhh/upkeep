@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_areas_tasks_schedules() -> list[dict[str, Any]]:
+    """Return all areas with count of tasks and task with the soonest due_date and id."""
     area_queryset = (
         Area.objects.prefetch_related("tasks__schedules").annotate(task_count=Count("tasks")).all()
     )
@@ -31,6 +32,7 @@ def get_areas_tasks_schedules() -> list[dict[str, Any]]:
 
 
 def get_tasks_schedules(area=None) -> list[dict[str, Any]]:
+    """Return all tasks, optionally filtered by area, with area name and next due_date."""
     tasks_queryset = Task.objects.select_related("area").prefetch_related("schedules")
 
     if area:

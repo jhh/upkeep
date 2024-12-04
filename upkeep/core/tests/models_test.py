@@ -4,7 +4,7 @@ from datetime import timedelta
 import pytest
 from django.db import IntegrityError
 
-from upkeep.core.models import Area, Consumable, Task, TaskConsumable
+from upkeep.core.models import Area, Consumable, Schedule, Task, TaskConsumable
 
 
 @pytest.mark.django_db
@@ -86,6 +86,36 @@ def test_task_bad_frequency():
     task = Task(name="test", interval=1, frequency="bad")
     with pytest.raises(ValueError):
         task.next_date()
+
+
+@pytest.mark.django_db
+def test_task_manager():
+    a = Area.objects.create(name="Test Area")
+    t = Task.objects.create(area=a, name="test 1", interval=1, frequency="days")
+
+    s = Schedule.objects.create(task=t, due_date=datetime.date.today())
+    tasks = Task.objects.get_upcoming_due_tasks(within_days=1)
+    assert len(tasks) == 1
+
+    s.completion_date = datetime.date.today()
+    s.save()
+    tasks = Task.objects.get_upcoming_due_tasks(within_days=1)
+    assert len(tasks) == 0
+
+    Schedule.objects.create(task=t, due_date=datetime.date.today())
+    s = Schedule.objects.create(task=t, due_date=datetime.date.today() + timedelta(days=2))
+    tasks = Task.objects.get_upcoming_due_tasks(within_days=1)
+    assert len(tasks) == 1
+
+    t = Task.objects.create(area=a, name="test 2", interval=1, frequency="days")
+    Schedule.objects.create(task=t, due_date=datetime.date.today() + timedelta(days=2))
+    tasks = Task.objects.get_upcoming_due_tasks(within_days=2)
+    assert len(tasks) == 3
+
+    s.completion_date = datetime.date.today()
+    s.save()
+    tasks = Task.objects.get_upcoming_due_tasks(within_days=2)
+    assert len(tasks) == 2
 
 
 @pytest.mark.django_db

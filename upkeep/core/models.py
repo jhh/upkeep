@@ -19,6 +19,14 @@ class Area(models.Model):
         return self.name
 
 
+class TaskManager(models.Manager):
+    def get_upcoming_due_tasks(self, within_days: int = 14, start_date=datetime.date.today()):
+        return self.filter(
+            schedules__due_date__lte=start_date + datetime.timedelta(days=within_days),
+            schedules__completion_date__isnull=True,
+        )
+
+
 class Task(models.Model):
     name = models.CharField("task name", max_length=200)
     notes = models.TextField(blank=True)
@@ -30,6 +38,7 @@ class Task(models.Model):
         default="months",
     )
     area = models.ForeignKey(Area, on_delete=models.CASCADE, related_name="tasks")
+    objects = TaskManager()
 
     def is_recurring(self) -> bool:
         return self.interval is not None
