@@ -151,3 +151,15 @@ LOGGING = {
         },
     },
 }
+
+EMAIL_BACKEND = (
+    "django.core.mail.backends.console.EmailBackend"
+    if DEBUG
+    else "django.core.mail.backends.smtp.EmailBackend"
+)
+EMAIL_HOST = "localhost"
+EMAIL_PORT = 25
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = False
+
+ADMINS = [("Jeff", "jeff@j3ff.io")]
