@@ -162,6 +162,36 @@
           )
         );
 
+      # Upkeep bundled CSS and Js
+      staticBundle = forAllSystems
+        (
+          system:
+          let
+            pkgs = nixpkgs.legacyPackages.${system};
+            inherit (pkgs) stdenv;
+          in
+          pkgs.buildNpmPackage {
+            name = "django-static-deps";
+            src = ./.;
+            npmDepsHash = "sha256-RVFWKv0W/twUmEKzlmrYF/Q09Ee2a2mTQ6dd2aiEL8o=";
+            dontNpmBuild = true;
+
+            buildPhase = ''
+              runHook preBuild
+              node ./static-build.mjs
+              runHook postBuild
+            '';
+
+            installPhase = ''
+              runHook preInstall
+              mkdir -p $out/ui
+              mv upkeep/ui/static/ui/main.* $out/ui
+              runHook postInstall
+            '';
+
+          }
+        );
+
       # Django static roots grouped per system
       staticRoots = forAllSystems (
         system:
@@ -186,6 +216,7 @@
           ];
 
           installPhase = ''
+            export DJANGO_STATICFILES_DIR="${self.packages.${system}.bundle}"
             export DJANGO_STATIC_ROOT="$out"
             upkeep-manage collectstatic
           '';
@@ -333,6 +364,7 @@
             };
 
           static = staticRoots.${system};
+          bundle = staticBundle.${system};
         } //
         lib.optionalAttrs pkgs.stdenv.isLinux {
           # Expose Docker container in packages

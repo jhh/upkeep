@@ -5,6 +5,7 @@ db.sqlite3
 /node_modules
 /result
 /static
+upkeep/ui/static/ui/main.*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

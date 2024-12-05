@@ -108,6 +108,9 @@ STATIC_ROOT = env.str("DJANGO_STATIC_ROOT", default=str(BASE_DIR / "static"))
 # STATICFILES_DIR is where "django.contrib.staticfiles" looks during development
 STATICFILES_DIRS = [APPS_DIR / "ui" / "static"]
 
+if env.path("DJANGO_STATICFILES_DIR", None):
+    STATICFILES_DIRS.append(env.path("DJANGO_STATICFILES_DIR"))
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
