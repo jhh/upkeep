@@ -1,5 +1,3 @@
-# Create your views here.
-
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -27,7 +25,7 @@ def new_area_view(request):
         form = AreaForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("areas")
+            return HttpResponseLocation(reverse("areas"), target="body")
         return render(request, "core/form.html", {"title": "area form", "form": form})
 
 
@@ -43,12 +41,12 @@ def edit_area_view(request, pk):
         form = AreaForm(request.POST, instance=area)
         if form.is_valid():
             form.save()
-            return HttpResponseLocation(reverse("areas"))
+            return HttpResponseLocation(reverse("areas"), target="body")
         return render(request, "core/form.html", {"title": "area form", "form": form})
 
     if request.method == "DELETE":
         area.delete()
-        return HttpResponseLocation(reverse("areas"))
+        return HttpResponseLocation(reverse("areas"), target="body")
 
 
 @require_GET
@@ -84,12 +82,12 @@ def edit_task_view(request, pk):
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
-            return HttpResponseLocation(reverse("tasks"))
+            return HttpResponseLocation(reverse("tasks"), target="body")
         return render(request, "core/form.html", {"title": "task form", "form": form})
 
     if request.method == "DELETE":
         task.delete()
-        return HttpResponseLocation(reverse("tasks"))
+        return HttpResponseLocation(reverse("tasks"), target="body")
 
 
 @require_GET
@@ -123,7 +121,10 @@ def new_schedule_view(request):
         form = ScheduleForm(request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
+            return HttpResponseLocation(
+                reverse("task", args=[form.instance.task.id]),
+                target="body",
+            )
         return render(request, "core/form.html", {"form": form})
 
 
@@ -142,13 +143,16 @@ def edit_schedule_view(request, pk):
         form = ScheduleForm(request.POST, instance=schedule)
         if form.is_valid():
             form.save()
-            return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
+            return HttpResponseLocation(
+                reverse("task", args=[form.instance.task.id]),
+                target="body",
+            )
         return render(request, "core/form.html", {"form": form})
 
     if request.method == "DELETE":
         task_id = schedule.task.id
         schedule.delete()
-        return HttpResponseLocation(reverse("task", args=[task_id]))
+        return HttpResponseLocation(reverse("task", args=[task_id]), target="body")
 
 
 @require_GET
@@ -167,7 +171,7 @@ def new_consumable_view(request):
         form = ConsumableForm(request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponseLocation(reverse("consumables"))
+            return HttpResponseLocation(reverse("consumables"), target="body")
         return render(request, "core/form.html", {"title": "consumable form", "form": form})
 
 
@@ -183,12 +187,12 @@ def edit_consumable_view(request, pk):
         form = ConsumableForm(request.POST, instance=consumable)
         if form.is_valid():
             form.save()
-            return HttpResponseLocation(reverse("consumables"))
+            return HttpResponseLocation(reverse("consumables"), target="body")
         return render(request, "core/form.html", {"title": "consumable form", "form": form})
 
     if request.method == "DELETE":
         consumable.delete()
-        return HttpResponseLocation(reverse("consumables"))
+        return HttpResponseLocation(reverse("consumables"), target="body")
 
 
 @require_http_methods(["GET", "POST"])
@@ -203,7 +207,10 @@ def new_task_consumable_view(request, task):
         form = TaskConsumableForm(request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
+            return HttpResponseLocation(
+                reverse("task", args=[form.instance.task.id]),
+                target="body",
+            )
         return render(request, "core/form.html", {"title": "task consumable form", "form": form})
 
 
@@ -219,10 +226,13 @@ def edit_task_consumable_view(request, pk):
         form = TaskConsumableForm(request.POST, instance=task_consumable)
         if form.is_valid():
             form.save()
-            return HttpResponseLocation(reverse("task", args=[form.instance.task.id]))
+            return HttpResponseLocation(
+                reverse("task", args=[form.instance.task.id]),
+                target="body",
+            )
         return render(request, "core/form.html", {"title": "task consumable form", "form": form})
 
     if request.method == "DELETE":
         task_id = task_consumable.task.id
         task_consumable.delete()
-        return HttpResponseLocation(reverse("task", args=[task_id]))
+        return HttpResponseLocation(reverse("task", args=[task_id]), target="body")
