@@ -163,11 +163,12 @@ def new_consumable_view(request):
         form = ConsumableForm()
         return render(request, "core/form.html", {"title": "consumable form", "form": form})
 
-    form = ConsumableForm(request.POST)
-    if form.is_valid():
-        form.save()
-        return HttpResponseLocation(reverse("consumables"))
-    return render(request, "core/form.html", {"title": "consumable form", "form": form})
+    if request.method == "POST":
+        form = ConsumableForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseLocation(reverse("consumables"))
+        return render(request, "core/form.html", {"title": "consumable form", "form": form})
 
 
 @require_http_methods(["GET", "POST", "DELETE"])
