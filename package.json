@@ -1,5 +1,5 @@
 {
-  "name": "${REPO_NAME}",
+  "name": "upkeep",
   "devDependencies": {
     "esbuild": "^0.24.0",
     "esbuild-sass-plugin": "^3.3.1"
