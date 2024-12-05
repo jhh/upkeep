@@ -10,6 +10,12 @@ from .services import get_areas_tasks_schedules, get_tasks_schedules
 
 
 @require_GET
+def home_view(request):
+    tasks = Task.objects.get_upcoming_due_tasks().select_related()
+    return render(request, "core/home.html", {"tasks": tasks})
+
+
+@require_GET
 def areas_view(request):
     areas = get_areas_tasks_schedules()
     return render(request, "core/area_list.html", {"areas": areas})

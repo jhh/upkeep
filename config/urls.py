@@ -11,6 +11,7 @@ from upkeep.core.views import (
     edit_schedule_view,
     edit_task_consumable_view,
     edit_task_view,
+    home_view,
     new_area_view,
     new_consumable_view,
     new_schedule_view,
@@ -21,7 +22,7 @@ from upkeep.core.views import (
 )
 
 urlpatterns = [
-    path("", RedirectView.as_view(url="/areas/"), name="home"),
+    path("", home_view, name="home"),
     path("areas/", areas_view, name="areas"),
     path("areas/<int:pk>/edit", edit_area_view, name="area_edit"),
     path("areas/new/", new_area_view, name="area_new"),

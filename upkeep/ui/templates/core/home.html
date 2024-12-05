@@ -1,0 +1,33 @@
+{% extends "ui/base.html" %}
+{% load static %}
+
+{% block page_title %}home{% endblock %}
+
+{% block main %}
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Upcoming Task</th>
+      <td></td>
+      <th>Area</th>
+      <th>Due</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for task in tasks %}
+      <tr>
+        <td><a href="{% url 'task' task.id %}"
+               class="link-underline link-underline-opacity-0"
+        >{{ task.name }}</a></td>
+        <td>
+          <a href="{% url 'task_edit' task.id %}" class="edit-pencil" >
+            <img src="{% static 'ui/pencil.svg' %}" alt="edit">
+          </a>
+        </td>
+        <td>{{ task.area.name }}</td>
+          <td>{{ task.first_due_schedule.due_date }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock main %}

@@ -698,7 +698,7 @@ wheels = [
 
 [[package]]
 name = "upkeep"
-version = "1.0.3"
+version = "1.0.4"
 source = { editable = "." }
 dependencies = [
     { name = "crispy-bootstrap5" },
