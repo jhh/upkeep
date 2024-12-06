@@ -8,6 +8,9 @@ from upkeep.core.models import Task
 class Command(BaseCommand):
     def handle(self, *args, **options):
         tasks = Task.objects.get_upcoming_due_tasks()
+        if not tasks:
+            return
+
         text_content = render_to_string("core/notify_email.txt", {"tasks": tasks})
         send_mail(
             "Upkeep Task Notification",
