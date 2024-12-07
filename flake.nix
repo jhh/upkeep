@@ -23,16 +23,21 @@
     };
   };
 
-  outputs = { self, nixpkgs, uv2nix, pyproject-nix, pyproject-build-systems, ... }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      uv2nix,
+      pyproject-nix,
+      pyproject-build-systems,
+      ...
+    }:
     let
       inherit (nixpkgs) lib;
       forAllSystems = lib.genAttrs lib.systems.flakeExposed;
 
       pythonVersion = "python312";
       wsgiApp = "config.wsgi:application";
-      settingsModules = {
-        prod = "config.settings";
-      };
 
       workspace = uv2nix.lib.workspace.loadWorkspace { workspaceRoot = ./.; };
 
@@ -45,152 +50,152 @@
       };
 
       # Python sets grouped per system
-      pythonSets = forAllSystems
-        (
-          system:
-          let
-            pkgs = nixpkgs.legacyPackages.${system};
-            inherit (pkgs) stdenv;
+      pythonSets = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          inherit (pkgs) stdenv;
 
-            # Base Python package set from pyproject.nix
-            baseSet = pkgs.callPackage pyproject-nix.build.packages {
-              python = pkgs.${pythonVersion};
-            };
+          # Base Python package set from pyproject.nix
+          baseSet = pkgs.callPackage pyproject-nix.build.packages {
+            python = pkgs.${pythonVersion};
+          };
 
-            # An overlay of build fixups & test additions
-            pyprojectOverrides = final: prev: {
+          # An overlay of build fixups & test additions
+          pyprojectOverrides = final: prev: {
 
-              # upkeep is the name of our example package
-              upkeep = prev.upkeep.overrideAttrs (old: {
+            # upkeep is the name of our example package
+            upkeep = prev.upkeep.overrideAttrs (old: {
 
-                passthru = old.passthru // {
-                  tests =
-                    (old.tests or { }) //
-                      {
+              passthru = old.passthru // {
+                tests =
+                  (old.tests or { })
+                  // {
 
-                        mypy =
-                          let
-                            venv = final.mkVirtualEnv "upkeep-typing-env" {
-                              upkeep = [ "typing" ];
-                            };
-                          in
-                          stdenv.mkDerivation {
-                            name = "${final.upkeep.name}-mypy";
-                            inherit (final.upkeep) src;
-                            nativeBuildInputs = [ venv ];
-                            dontConfigure = true;
-                            dontInstall = true;
-                            buildPhase = ''
-                              export MYPYPATH=apps
-                              mypy . --junit-xml $out/junit.xml
-                            '';
-                          };
+                    mypy =
+                      let
+                        venv = final.mkVirtualEnv "upkeep-typing-env" {
+                          upkeep = [ "typing" ];
+                        };
+                      in
+                      stdenv.mkDerivation {
+                        name = "${final.upkeep.name}-mypy";
+                        inherit (final.upkeep) src;
+                        nativeBuildInputs = [ venv ];
+                        dontConfigure = true;
+                        dontInstall = true;
+                        buildPhase = ''
+                          export MYPYPATH=apps
+                          mypy . --junit-xml $out/junit.xml
+                        '';
+                      };
 
-                        pytest =
-                          let
-                            venv = final.mkVirtualEnv "upkeep-pytest-env" {
-                              upkeep = [ "test" ];
-                            };
-                          in
-                          stdenv.mkDerivation {
-                            name = "${final.upkeep.name}-pytest";
-                            inherit (final.upkeep) src;
-                            nativeBuildInputs = [
-                              venv
+                    pytest =
+                      let
+                        venv = final.mkVirtualEnv "upkeep-pytest-env" {
+                          upkeep = [ "test" ];
+                        };
+                      in
+                      stdenv.mkDerivation {
+                        name = "${final.upkeep.name}-pytest";
+                        inherit (final.upkeep) src;
+                        nativeBuildInputs = [
+                          venv
+                        ];
+
+                        dontConfigure = true;
+
+                        buildPhase = ''
+                          pytest --junit-xml=$out/junit.xml
+                        '';
+                      };
+                  }
+                  // lib.optionalAttrs stdenv.isLinux {
+                    #
+                    nixos =
+                      let
+                        venv = final.mkVirtualEnv "upkeep-nixos-test-env" workspace.deps.default;
+                        secrets = pkgs.writeText "upkeep-test-secrets" ''
+                          DEBUG=false
+                          DJANGO_DATABASE_URL="sqlite:///tmp/db.sqlite3"
+                        '';
+                      in
+                      pkgs.nixosTest {
+                        name = "upkeep-nixos-test";
+
+                        nodes.machine =
+                          { ... }:
+                          {
+                            imports = [
+                              self.nixosModules.default
                             ];
 
-                            dontConfigure = true;
-
-                            buildPhase = ''
-                              pytest --junit-xml=$out/junit.xml
-                            '';
-                          };
-                      } // lib.optionalAttrs stdenv.isLinux {
-                      #
-                      nixos =
-                        let
-                          venv = final.mkVirtualEnv "upkeep-nixos-test-env" workspace.deps.default;
-                          secrets = pkgs.writeText "upkeep-test-secrets" ''
-                            DEBUG=false
-                            DJANGO_DATABASE_URL="sqlite:///tmp/db.sqlite3"
-                          '';
-                        in
-                        pkgs.nixosTest {
-                          name = "upkeep-nixos-test";
-
-                          nodes.machine = { ... }:
-                            {
-                              imports = [
-                                self.nixosModules.default
-                              ];
-
-                              services.upkeep = {
-                                enable = true;
-                                inherit venv;
-                                secrets = [ secrets ];
-                                port = 8001;
-                              };
-
-                              system.stateVersion = "24.11";
+                            services.upkeep = {
+                              enable = true;
+                              inherit venv;
+                              secrets = [ secrets ];
+                              port = 8001;
                             };
 
-                          testScript = ''
-                            with subtest("Check upkeep app comes up"):
-                              machine.wait_for_unit("upkeep.service")
-                              machine.wait_for_open_port(8001)
+                            system.stateVersion = "24.11";
+                          };
 
-                            with subtest("Staticfiles are generated"):
-                              machine.succeed("curl -sf http://localhost:8001/static/ui/main.css")
+                        testScript = ''
+                          with subtest("Check upkeep app comes up"):
+                            machine.wait_for_unit("upkeep.service")
+                            machine.wait_for_open_port(8001)
 
-                            with subtest("Home page is live"):
-                              machine.succeed("curl -sLf http://localhost:8001/ | grep 'Upkeep'")
-                          '';
-                        };
-                    };
-                };
-              });
+                          with subtest("Staticfiles are generated"):
+                            machine.succeed("curl -sf http://localhost:8001/static/ui/main.css")
 
-            };
+                          with subtest("Home page is live"):
+                            machine.succeed("curl -sLf http://localhost:8001/ | grep 'Upkeep'")
+                        '';
+                      };
+                  };
+              };
+            });
 
-          in
-          baseSet.overrideScope (
-            lib.composeManyExtensions [
-              pyproject-build-systems.overlays.default
-              overlay
-              pyprojectOverrides
-            ]
-          )
-        );
+          };
+
+        in
+        baseSet.overrideScope (
+          lib.composeManyExtensions [
+            pyproject-build-systems.overlays.default
+            overlay
+            pyprojectOverrides
+          ]
+        )
+      );
 
       # Upkeep bundled CSS and Js
-      staticBundle = forAllSystems
-        (
-          system:
-          let
-            pkgs = nixpkgs.legacyPackages.${system};
-            inherit (pkgs) stdenv;
-          in
-          pkgs.buildNpmPackage {
-            name = "django-static-deps";
-            src = ./.;
-            npmDepsHash = "sha256-RVFWKv0W/twUmEKzlmrYF/Q09Ee2a2mTQ6dd2aiEL8o=";
-            dontNpmBuild = true;
+      staticBundle = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          inherit (pkgs) stdenv;
+        in
+        pkgs.buildNpmPackage {
+          name = "django-static-deps";
+          src = ./.;
+          npmDepsHash = "sha256-RVFWKv0W/twUmEKzlmrYF/Q09Ee2a2mTQ6dd2aiEL8o=";
+          dontNpmBuild = true;
 
-            buildPhase = ''
-              runHook preBuild
-              node ./static-build.mjs
-              runHook postBuild
-            '';
+          buildPhase = ''
+            runHook preBuild
+            node ./static-build.mjs
+            runHook postBuild
+          '';
 
-            installPhase = ''
-              runHook preInstall
-              mkdir -p $out/ui
-              mv upkeep/ui/static/ui/main.* $out/ui
-              runHook postInstall
-            '';
+          installPhase = ''
+            runHook preInstall
+            mkdir -p $out/ui
+            mv upkeep/ui/static/ui/main.* $out/ui
+            runHook postInstall
+          '';
 
-          }
-        );
+        }
+      );
 
       # Django static roots grouped per system
       staticRoots = forAllSystems (
@@ -244,18 +249,23 @@
 
     in
     {
-      checks = forAllSystems
-        (
-          system:
-          let
-            pythonSet = pythonSets.${system};
-          in
-          # Inherit tests from passthru.tests into flake checks
-          pythonSet.upkeep.passthru.tests
-        );
+      checks = forAllSystems (
+        system:
+        let
+          pythonSet = pythonSets.${system};
+        in
+        # Inherit tests from passthru.tests into flake checks
+        pythonSet.upkeep.passthru.tests
+      );
 
       nixosModules = {
-        default = { config, lib, pkgs, ... }:
+        default =
+          {
+            config,
+            lib,
+            pkgs,
+            ...
+          }:
           let
             cfg = config.services.upkeep;
             inherit (pkgs) system;
@@ -283,7 +293,7 @@
 
               settings-module = mkOption {
                 type = lib.types.str;
-                default = settingsModules.prod;
+                default = "config.settings";
                 description = ''
                   Django settings module for Upkeep
                 '';
@@ -349,7 +359,10 @@
 
                   RestrictAddressFamilies = "AF_UNIX AF_INET";
                   CapabilityBoundingSet = "";
-                  SystemCallFilter = [ "@system-service" "~@privileged @setuid @keyring" ];
+                  SystemCallFilter = [
+                    "@system-service"
+                    "~@privileged @setuid @keyring"
+                  ];
                 };
 
                 wantedBy = [ "multi-user.target" ];
@@ -360,24 +373,20 @@
 
       };
 
-      packages = forAllSystems (
-        system:
-        {
-          default = manageApp.${system};
-          static = staticRoots.${system};
-          bundle = staticBundle.${system};
-        }
-      );
+      packages = forAllSystems (system: {
+        default = manageApp.${system};
+        static = staticRoots.${system};
+        bundle = staticBundle.${system};
+      });
 
-      apps = forAllSystems
-        (
-          system: {
-            default = {
-              type = "app";
-              program = "${self.packages.${system}.default}/bin/manage";
-            };
-          }
-        );
+      apps = forAllSystems (system: {
+        default = {
+          type = "app";
+          program = "${self.packages.${system}.default}/bin/manage";
+        };
+      });
+
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-rfc-style);
 
       # Use an editable Python set for development.
       devShells = forAllSystems (
