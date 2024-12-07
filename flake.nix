@@ -205,8 +205,8 @@
 
         in
         stdenv.mkDerivation {
-          name = "upkeep-static";
-          inherit (pythonSet.upkeep) src;
+          pname = "upkeep-static";
+          inherit (pythonSet.upkeep) version src;
 
           dontConfigure = true;
           dontBuild = true;
