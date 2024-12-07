@@ -339,6 +339,7 @@
                   '';
                   Restart = "on-failure";
 
+                  User = "upkeep";
                   DynamicUser = true;
                   StateDirectory = "upkeep";
                   RuntimeDirectory = "upkeep";
@@ -363,6 +364,18 @@
                 };
 
                 wantedBy = [ "multi-user.target" ];
+              };
+
+              systemd.services."upkeep-notify" = {
+                script = ''
+                  ${cfg.venv}/bin/upkeep-manage notify
+                '';
+                serviceConfig = {
+                  EnvironmentFile = cfg.secrets;
+                  Type = "oneshot";
+                  User = "upkeep";
+                };
+                startAt = "daily";
               };
             };
 
