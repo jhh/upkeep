@@ -12,10 +12,12 @@ class Command(BaseCommand):
             return
 
         text_content = render_to_string("core/notify_email.txt", {"tasks": tasks})
+        html_content = render_to_string("core/notify_email.html", {"tasks": tasks})
         send_mail(
             "Upkeep Task Notification",
             text_content,
-            "upkeep@j3ff.io",
-            ["jeff@j3ff.io"],
+            html_message=html_content,
+            from_email="upkeep@j3ff.io",
+            recipient_list=["jeff@j3ff.io"],
             fail_silently=False,
         )
