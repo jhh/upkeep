@@ -36,9 +36,6 @@
       inherit (nixpkgs) lib;
       forAllSystems = lib.genAttrs lib.systems.flakeExposed;
 
-      pythonVersion = "python312";
-      wsgiApp = "config.wsgi:application";
-
       workspace = uv2nix.lib.workspace.loadWorkspace { workspaceRoot = ./.; };
 
       overlay = workspace.mkPyprojectOverlay {
@@ -58,7 +55,7 @@
 
           # Base Python package set from pyproject.nix
           baseSet = pkgs.callPackage pyproject-nix.build.packages {
-            python = pkgs.${pythonVersion};
+            python = pkgs.python312;
           };
 
           # An overlay of build fixups & test additions
@@ -338,7 +335,7 @@
                   EnvironmentFile = cfg.secrets;
                   ExecStartPre = "${cfg.venv}/bin/upkeep-manage migrate --no-input";
                   ExecStart = ''
-                    ${cfg.venv}/bin/gunicorn --bind 127.0.0.1:${toString cfg.port} ${wsgiApp}
+                    ${cfg.venv}/bin/gunicorn --bind 127.0.0.1:${toString cfg.port} config.wsgi:application
                   '';
                   Restart = "on-failure";
 
@@ -396,6 +393,7 @@
           editablePythonSet = pythonSets.${system}.overrideScope editableOverlay;
           venv = editablePythonSet.mkVirtualEnv "upkeep-dev-env" workspace.deps.all;
           uv = uv2nix.packages.${system}.uv-bin;
+          inherit (editablePythonSet) python;
           packages = [
             pkgs.just
             pkgs.nodejs
@@ -405,7 +403,7 @@
         in
         {
           impure = pkgs.mkShell {
-            packages = packages ++ [ pkgs.${pythonVersion} ];
+            packages = packages ++ [ python ];
             shellHook = ''
               unset PYTHONPATH
               export UV_PYTHON_DOWNLOADS=never
