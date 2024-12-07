@@ -223,6 +223,25 @@
         }
       );
 
+      manageApp = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          pythonSet = pythonSets.${system};
+          venv = pythonSet.mkVirtualEnv "upkeep-env" workspace.deps.default;
+        in
+        pkgs.writeShellApplication {
+          name = "manage";
+          text = ''
+            if [ "$UID" -ne 0 ]; then
+                echo "error: run this command as root."
+                exit 1
+            fi
+            sudo -u upkeep env DJANGO_DATABASE_URL=postgres:///upkeep ${venv}/bin/upkeep-manage "$@"
+          '';
+        }
+      );
+
     in
     {
       checks = forAllSystems
@@ -343,49 +362,10 @@
 
       packages = forAllSystems (
         system:
-        let
-          pkgs = nixpkgs.legacyPackages.${system};
-          pythonSet = pythonSets.${system};
-        in
         {
-          default =
-            let
-              venv = pythonSet.mkVirtualEnv "upkeep-env" workspace.deps.default;
-            in
-            pkgs.writeShellApplication {
-              name = "manage";
-              text = ''
-                if [ "$UID" -ne 0 ]; then
-                    echo "error: run this command as root."
-                    exit 1
-                fi
-                sudo -u upkeep env DJANGO_DATABASE_URL=postgres:///upkeep ${venv}/bin/upkeep-manage "$@"
-              '';
-            };
-
+          default = manageApp.${system};
           static = staticRoots.${system};
           bundle = staticBundle.${system};
-        } //
-        lib.optionalAttrs pkgs.stdenv.isLinux {
-          # Expose Docker container in packages
-          docker =
-            let
-              venv = pythonSet.mkVirtualEnv "upkeep-env" workspace.deps.default;
-            in
-            pkgs.dockerTools.buildLayeredImage {
-              name = "upkeep";
-              contents = [ pkgs.cacert ];
-              config = {
-                Cmd = [
-                  "${venv}/bin/gunicorn"
-                  wsgiApp
-                ];
-                Env = [
-                  "DJANGO_SETTINGS_MODULE=${settingsModules.prod}"
-                  "DJANGO_STATIC_ROOT=${staticRoots.${system}}"
-                ];
-              };
-            };
         }
       );
 
