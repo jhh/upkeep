@@ -1,14 +1,14 @@
 <table>
   <tr>
-    <th>Task</th>
-    <th>Due</th>
+    <th style="padding-right: 10px;">Task</th>
+    <th style="padding-right: 10px;">Due</th>
     <th>Consumables</th>
   </tr>
 
   {% for task in tasks %}
     <tr>
-      <td><a href="{% url 'task' task.id %}">{{ task.name }}</a></td>
-      <td>{{ task.first_due_schedule.due_date }}</td>
+      <td style="padding-right: 10px;"><a href="https://upkeep.j3ff.io{% url 'task' task.id %}">{{ task.name }}</a></td>
+      <td style="padding-right: 10px;">{{ task.first_due_schedule.due_date }}</td>
       <td>
         {% for consumable in task.consumables.all %}
           {{ consumable.name }}{% if not forloop.last %}<br>{% endif %}
