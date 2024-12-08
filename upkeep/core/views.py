@@ -6,12 +6,12 @@ from django_htmx.http import HttpResponseLocation
 
 from .forms import AreaForm, ConsumableForm, ScheduleForm, TaskConsumableForm, TaskForm
 from .models import Area, Consumable, Schedule, Task, TaskConsumable
-from .services import get_areas_tasks_schedules, get_tasks_schedules
+from .services import get_areas_tasks_schedules, get_tasks_schedules, get_upcoming_due_tasks
 
 
 @require_GET
 def home_view(request):
-    tasks = Task.objects.get_upcoming_due_tasks().select_related()
+    tasks = get_upcoming_due_tasks(within_days=14)
     return render(request, "core/home.html", {"tasks": tasks})
 
 

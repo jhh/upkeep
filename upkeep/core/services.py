@@ -4,7 +4,7 @@ from typing import Any
 
 from django.db.models import Count
 
-from .models import Area, Schedule, Task
+from .models import Area, Schedule, Task, TaskConsumable
 
 logger = logging.getLogger(__name__)
 
@@ -48,4 +48,30 @@ def get_tasks_schedules(area=None) -> list[dict[str, Any]]:
             row |= {"due_date": first.due_date}
 
         tasks.append(row)
+    return tasks
+
+
+def get_upcoming_due_tasks(within_days=14) -> list[dict[str, Any]]:
+    """Return all upcoming tasks due with within_days with due date."""
+
+    tasks_queryset = Task.objects.get_upcoming_due_tasks(within_days=within_days).select_related()
+
+    tasks = []
+    for task in tasks_queryset:
+        task_consumables = TaskConsumable.objects.filter(task=task).all()
+        is_ready = True
+        for tc in task_consumables:
+            if tc.quantity > tc.consumable.quantity:
+                is_ready = False
+
+        tasks.append(
+            {
+                "id": task.id,
+                "name": task.name,
+                "area": task.area.name,
+                "due_date": task.first_due_schedule().due_date,
+                "is_ready": is_ready,
+            },
+        )
+
     return tasks

@@ -4,34 +4,18 @@ from django.core.mail import send_mail
 from django.core.management import BaseCommand
 from django.template.loader import render_to_string
 
-from upkeep.core.models import Task, TaskConsumable
+from upkeep.core.services import get_upcoming_due_tasks
 
 logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        tasks_queryset = Task.objects.get_upcoming_due_tasks(within_days=14)
-        if not tasks_queryset:
+        tasks = get_upcoming_due_tasks(within_days=14)
+
+        if not tasks:
             logger.info("No upcoming due tasks found")
             return
-
-        tasks = []
-        for task in tasks_queryset:
-            task_consumables = TaskConsumable.objects.filter(task=task).all()
-            is_ready = True
-            for tc in task_consumables:
-                if tc.quantity > tc.consumable.quantity:
-                    is_ready = False
-
-            tasks.append(
-                {
-                    "id": task.id,
-                    "name": task.name,
-                    "due_date": task.first_due_schedule().due_date,
-                    "is_ready": is_ready,
-                },
-            )
 
         context = {
             "tasks": tasks,

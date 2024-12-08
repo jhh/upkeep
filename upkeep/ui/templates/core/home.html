@@ -8,9 +8,10 @@
     <thead>
     <tr>
       <th>Upcoming Task</th>
-      <td></td>
+      <th></th>
       <th>Area</th>
       <th>Due</th>
+      <th>Consumables</th>
     </tr>
     </thead>
     <tbody>
@@ -20,12 +21,17 @@
                class="link-underline link-underline-opacity-0"
         >{{ task.name }}</a></td>
         <td>
-          <a href="{% url 'task_edit' task.id %}" class="edit-pencil" >
+          <a href="{% url 'task_edit' task.id %}" class="edit-pencil">
             <img src="{% static 'ui/pencil.svg' %}" alt="edit">
           </a>
         </td>
-        <td>{{ task.area.name }}</td>
-          <td>{{ task.first_due_schedule.due_date }}</td>
+        <td>{{ task.area }}</td>
+        <td>{{ task.due_date }}</td>
+        {% if task.is_ready %}
+          <td>in-stock</td>
+        {% else %}
+          <td class="text-danger">out-of-stock</td>
+        {% endif %}
       </tr>
     {% endfor %}
     </tbody>
