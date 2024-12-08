@@ -1,7 +1,7 @@
 [project]
 name = "upkeep"
-version = "1.0.5"
-description = "Django Application"
+version = "1.0.6"
+description = "Upkeep Home Maintenance Tracker"
 readme = "README.md"
 requires-python = ">=3.12"
 classifiers = ["Private :: Do Not Upload"]

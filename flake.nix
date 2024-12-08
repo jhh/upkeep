@@ -395,12 +395,13 @@
           venv = editablePythonSet.mkVirtualEnv "upkeep-dev-env" workspace.deps.all;
           uv = uv2nix.packages.${system}.uv-bin;
           inherit (editablePythonSet) python;
+          inherit (pkgs.stdenv) optional isDarwin;
           packages = [
             pkgs.just
             pkgs.nodejs
             pkgs.pre-commit
             uv
-          ];
+          ] ++ lib.optional isDarwin pkgs.mailpit;
         in
         {
           impure = pkgs.mkShell {

@@ -1,20 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--suppress HtmlRequiredTitleElement -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+      td {
+          padding: 0.1rem 1rem;
+      }
+
+      p {
+          font-size: large;
+      }
+
+      .warning {
+          color: red;
+      }
+  </style>
+</head>
+<body>
+<p>The following tasks are due {{ period }}.</p>
 <table>
   <tr>
-    <th style="padding-right: 10px;">Task</th>
-    <th style="padding-right: 10px;">Due</th>
+    <th>Task</th>
+    <th>Due</th>
     <th>Consumables</th>
   </tr>
 
   {% for task in tasks %}
     <tr>
-      <td style="padding-right: 10px;"><a href="https://upkeep.j3ff.io{% url 'task' task.id %}">{{ task.name }}</a></td>
-      <td style="padding-right: 10px;">{{ task.first_due_schedule.due_date }}</td>
-      <td>
-        {% for consumable in task.consumables.all %}
-          {{ consumable.name }}{% if not forloop.last %}<br>{% endif %}
-        {% endfor %}
-      </td>
+      <td><a href="https://upkeep.j3ff.io{% url 'task' task.id %}">{{ task.name }}</a></td>
+      <td>{{ task.due_date }}</td>
+      {% if task.is_ready %}<td>in-stock</td>{% else %}<td class="warning">out-of-stock</td>{% endif %}
     </tr>
   {% endfor %}
 
 </table>
+</body>
+</html>
