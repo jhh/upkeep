@@ -165,8 +165,8 @@
         )
       );
 
-      # Upkeep bundled CSS and Js
-      staticBundle = forAllSystems (
+      # Upkeep bundled CSS and JS
+      staticCssJsBundle = forAllSystems (
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
@@ -194,31 +194,27 @@
         }
       );
 
-      # Django static roots grouped per system
+      # Django static roots grouped per system, all static files are in venv - no src required
       staticRoots = forAllSystems (
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
           inherit (pkgs) stdenv;
-
           pythonSet = pythonSets.${system};
-
           venv = pythonSet.mkVirtualEnv "upkeep-env" workspace.deps.default;
-
         in
         stdenv.mkDerivation {
           pname = "upkeep-static";
-          inherit (pythonSet.upkeep) version src;
+          inherit (pythonSet.upkeep) version;
 
+          nativeBuildInputs = [ venv ];
+
+          dontUnpack = true;
           dontConfigure = true;
           dontBuild = true;
 
-          nativeBuildInputs = [
-            venv
-          ];
-
           installPhase = ''
-            export DJANGO_STATICFILES_DIR="${self.packages.${system}.bundle}"
+            export DJANGO_STATICFILES_DIR="${self.packages.${system}.upkeep-css-js}"
             export DJANGO_STATIC_ROOT="$out"
             upkeep-manage collectstatic
           '';
@@ -277,39 +273,31 @@
               enable = mkOption {
                 type = lib.types.bool;
                 default = false;
-                description = ''
-                  Enable Upkeep
-                '';
+                description = "Enable Upkeep service";
               };
 
               port = lib.mkOption {
                 type = lib.types.port;
-                description = "Proxy port";
+                description = "Server listen port";
                 default = 8000;
               };
 
               settings-module = mkOption {
                 type = lib.types.str;
                 default = "config.settings";
-                description = ''
-                  Django settings module for Upkeep
-                '';
+                description = "Django settings module for Upkeep";
               };
 
               venv = mkOption {
                 type = lib.types.package;
                 default = pythonSet.mkVirtualEnv "upkeep-env" workspace.deps.default;
-                description = ''
-                  Upkeep virtual environment package
-                '';
+                description = "Upkeep virtual environment package";
               };
 
               static-root = mkOption {
                 type = lib.types.package;
                 default = staticRoots.${system};
-                description = ''
-                  Upkeep static root
-                '';
+                description = "Upkeep static root package";
               };
 
               secrets = lib.mkOption {
@@ -324,7 +312,7 @@
 
             config = mkIf cfg.enable {
               systemd.services.upkeep = {
-                description = "upkeep server";
+                description = "Upkeep server";
 
                 environment = {
                   DJANGO_SETTINGS_MODULE = cfg.settings-module;
@@ -386,7 +374,7 @@
       packages = forAllSystems (system: {
         default = manageApp.${system};
         static = staticRoots.${system};
-        bundle = staticBundle.${system};
+        upkeep-css-js = staticCssJsBundle.${system};
       });
 
       apps = forAllSystems (system: {
