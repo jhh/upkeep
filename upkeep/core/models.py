@@ -24,7 +24,7 @@ class TaskManager(models.Manager):
         return self.filter(
             schedules__due_date__lte=start_date + datetime.timedelta(days=within_days),
             schedules__completion_date__isnull=True,
-        )
+        ).order_by("schedules__due_date")
 
 
 class Task(models.Model):
