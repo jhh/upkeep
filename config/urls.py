@@ -19,6 +19,7 @@ from upkeep.core.views import (
     new_task_view,
     task_view,
     tasks_view,
+    toggle_schedule_completed_view,
 )
 
 urlpatterns = [
@@ -32,6 +33,7 @@ urlpatterns = [
     path("tasks/new/", new_task_view, name="task_new"),
     path("schedules/<int:pk>/edit", edit_schedule_view, name="schedule_edit"),
     path("schedules/new/", new_schedule_view, name="schedule_new"),
+    path("schedules/<int:pk>/toggle", toggle_schedule_completed_view, name="schedule_toggle"),
     path("consumables/", consumables_view, name="consumables"),
     path("consumables/<int:pk>/edit", edit_consumable_view, name="consumable_edit"),
     path("consumables/new/", new_consumable_view, name="consumable_new"),

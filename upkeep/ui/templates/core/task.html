@@ -13,22 +13,31 @@
   <table class="table">
     <thead>
     <tr>
-      <th scope="col">Due</th>
+      <th>Completed</th>
+      <th scope="col">Date Due</th>
       <th></th>
-      <th scope="col">Completed</th>
+      <th scope="col">Date Completed</th>
       <th scope="col">Notes</th>
     </tr>
     </thead>
     <tbody>
     {% for schedule in task.schedules.all %}
       <tr>
+        <th>
+          <input
+              hx-post="{% url 'schedule_toggle' schedule.id %}"
+              type="checkbox"
+              class="form-check-input me-2"
+              {% if schedule.is_complete %}checked{% endif %}
+          >
+        </th>
         <td>{{ schedule.due_date }}</td>
         <td>
           <div class="d-flex gap-3 edit-pencil">
             <a
-            hx-delete="{% url 'schedule_edit' schedule.id %}"
-            hx-confirm="Delete schedule due {{ schedule.due_date }}?"
-            href="#"
+                hx-delete="{% url 'schedule_edit' schedule.id %}"
+                hx-confirm="Delete schedule due {{ schedule.due_date }}?"
+                href="#"
             ><img src="{% static 'ui/trash.svg' %}" alt="delete"></a>
             <a href="{% url 'schedule_edit' schedule.id %}">
               <img src="{% static 'ui/pencil.svg' %}" alt="edit">
@@ -41,7 +50,7 @@
     {% endfor %}
     </tbody>
   </table>
-    <div class="d-flex justify-content-end">
+  <div class="d-flex justify-content-end">
     <a href="{% url 'schedule_new' %}?task={{ task.id }}" class="btn btn-outline-primary">Add Schedule</a>
   </div>
 
@@ -79,7 +88,7 @@
     {% endfor %}
     </tbody>
   </table>
-    <div class="d-flex justify-content-end">
+  <div class="d-flex justify-content-end">
     <a href="{% url 'task_consumable_new' task.id %}" class="btn btn-outline-primary">Add Consumable</a>
   </div>
 {% endblock main %}
