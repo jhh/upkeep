@@ -1,12 +1,17 @@
+import datetime
+import logging
+
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.views.decorators.http import require_GET, require_http_methods
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 from django_htmx.http import HttpResponseLocation
 
 from .forms import AreaForm, ConsumableForm, ScheduleForm, TaskConsumableForm, TaskForm
 from .models import Area, Consumable, Schedule, Task, TaskConsumable
 from .services import get_areas_tasks_schedules, get_tasks_schedules, get_upcoming_due_tasks
+
+logger = logging.getLogger(__name__)
 
 
 @require_GET
@@ -119,8 +124,8 @@ def task_view(request, pk):
 @require_http_methods(["GET", "POST"])
 def new_schedule_view(request):
     if request.method == "GET":
-        task_id = request.GET.get("task")
-        form = ScheduleForm(initial={"task": task_id})
+        task = Task.objects.get(pk=request.GET.get("task"))
+        form = ScheduleForm(initial={"task": task.id, "due_date": task.next_date()})
         return render(request, "core/form.html", {"form": form})
 
     if request.method == "POST":
@@ -159,6 +164,17 @@ def edit_schedule_view(request, pk):
         task_id = schedule.task.id
         schedule.delete()
         return HttpResponseLocation(reverse("task", args=[task_id]), target="body")
+
+
+@require_POST
+def toggle_schedule_completed_view(request, pk):
+    schedule = get_object_or_404(Schedule, pk=pk)
+    if schedule.completion_date:
+        schedule.completion_date = None
+    else:
+        schedule.completion_date = datetime.date.today()
+    schedule.save()
+    return HttpResponseLocation(reverse("task", args=[schedule.task.id]), target="body")
 
 
 @require_GET
