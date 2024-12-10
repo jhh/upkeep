@@ -64,13 +64,16 @@ def edit_area_view(request, pk):
 def tasks_view(request):
     area = request.GET.get("area")
     tasks = get_tasks_schedules(area)
-    return render(request, "core/task_list.html", {"tasks": tasks})
+    return render(request, "core/task_list.html", {"area": area, "tasks": tasks})
 
 
 @require_http_methods(["GET", "POST"])
 def new_task_view(request):
     if request.method == "GET":
         form = TaskForm()
+        area = request.GET.get("area")
+        if area:
+            form.fields["area"].initial = area
         return render(request, "core/form.html", {"title": "task form", "form": form})
 
     if request.method == "POST":

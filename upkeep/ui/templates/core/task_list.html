@@ -35,6 +35,6 @@
     </tbody>
   </table>
   <div class="d-flex justify-content-end">
-    <a href="{% url 'task_new' %}" class="btn btn-outline-primary">Add Task</a>
+    <a href="{% url 'task_new' %}{% if area %}?area={{ area }}{% endif %}" class="btn btn-outline-primary">Add Task</a>
   </div>
 {% endblock main %}
