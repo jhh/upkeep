@@ -170,7 +170,6 @@
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          inherit (pkgs) stdenv;
         in
         pkgs.buildNpmPackage {
           name = "django-static-deps";
@@ -395,9 +394,12 @@
           venv = editablePythonSet.mkVirtualEnv "upkeep-dev-env" workspace.deps.all;
           uv = uv2nix.packages.${system}.uv-bin;
           inherit (editablePythonSet) python;
-          inherit (pkgs.stdenv) optional isDarwin;
+          inherit (pkgs.stdenv) isDarwin;
+
           packages = [
             pkgs.just
+            pkgs.nil
+            pkgs.nixfmt-rfc-style
             pkgs.nodejs
             pkgs.pre-commit
             uv
