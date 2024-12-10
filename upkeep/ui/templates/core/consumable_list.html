@@ -17,7 +17,7 @@
     </thead>
     <tbody>
     {% for consumable in consumables %}
-      <tr>
+      <tr class="{% if consumable.quantity < consumable.quantity_needed %}table-danger{% endif %}">
         <td>{{ consumable.name }}</td>
         <td>
           <a href="{% url 'consumable_edit' consumable.id %}" class="edit-pencil">
@@ -25,14 +25,17 @@
           </a>
         </td>
         <td>{{ consumable.quantity_needed }}</td>
-        <td>{{ consumable.quantity }}</td>
+        <td>
+          {{ consumable.quantity }}
+        </td>
         <td>
           {{ consumable.unit }}
         </td>
         <td>
           {% if consumable.url %}
-            <a href="{{ consumable.url }}" target="_blank" rel="noopener noreferrer"><img
-                src="{% static 'ui/box-arrow.svg' %}" alt="link"></a>
+            <a href="{{ consumable.url }}" target="_blank" rel="noopener noreferrer">
+              <img src="{% static 'ui/box-arrow.svg' %}" alt="link">
+            </a>
           {% endif %}
         </td>
       </tr>
