@@ -68,7 +68,6 @@ docs/_build/
 target/
 
 # pyenv
-.python-version
 
 # celery beat schedule file
 celerybeat-schedule

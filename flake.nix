@@ -55,7 +55,7 @@
 
           # Base Python package set from pyproject.nix
           baseSet = pkgs.callPackage pyproject-nix.build.packages {
-            python = pkgs.python312;
+            python = pkgs.python313;
           };
 
           # An overlay of build fixups & test additions
