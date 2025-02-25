@@ -228,7 +228,7 @@
           venv = pythonSet.mkVirtualEnv "upkeep-env" workspace.deps.default;
         in
         pkgs.writeShellApplication {
-          name = "manage";
+          name = "upkeep-manage";
           text = ''
             if [ "$UID" -ne 0 ]; then
                 echo "error: run this command as root."
@@ -310,6 +310,7 @@
             };
 
             config = mkIf cfg.enable {
+              environment.systemPackages = [ self.packages.${pkgs.system}.default ];
               systemd.services.upkeep = {
                 description = "Upkeep server";
 
