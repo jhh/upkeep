@@ -5,9 +5,15 @@ from django.db import models
 from django.db.models import Sum
 
 
+class AreaManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
+
 class Area(models.Model):
-    name = models.CharField("area name", max_length=200)
+    name = models.CharField("area name", max_length=200, unique=True)
     notes = models.TextField(blank=True)
+    objects = AreaManager()
 
     def first_due_schedule(self) -> "Schedule | None":
         schedules: list["Schedule"] = []
@@ -15,11 +21,17 @@ class Area(models.Model):
             schedules += task.schedules.filter(completion_date__isnull=True).all()
         return min(schedules, key=lambda s: s.due_date) if schedules else None
 
+    def natural_key(self):
+        return self.name
+
     def __str__(self):
         return self.name
 
 
 class TaskManager(models.Manager):
+    def get_by_natural_key(self, name, area):
+        return self.get(name=name, area__name=area)
+
     def get_upcoming_due_tasks(self, within_days: int = 14, start_date=datetime.date.today()):
         return self.filter(
             schedules__due_date__lte=start_date + datetime.timedelta(days=within_days),
@@ -39,6 +51,9 @@ class Task(models.Model):
     )
     area = models.ForeignKey(Area, on_delete=models.CASCADE, related_name="tasks")
     objects = TaskManager()
+
+    class Meta:
+        unique_together = ("name", "area")
 
     def is_recurring(self) -> bool:
         return self.interval is not None
@@ -60,12 +75,20 @@ class Task(models.Model):
     def first_due_schedule(self) -> "Schedule | None":
         return self.schedules.filter(completion_date__isnull=True).order_by("due_date").first()
 
+    def natural_key(self):
+        return (self.name, self.area.name)
+
     def __str__(self):
         return f"{self.name} ({self.id})"
 
 
+class ConsumableManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(url=name)
+
+
 class Consumable(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
     notes = models.TextField(blank=True)
     url = models.URLField("consumable url", blank=True)
     unit = models.CharField(max_length=25)
@@ -81,6 +104,9 @@ class Consumable(models.Model):
         return TaskConsumable.objects.filter(consumable=self).aggregate(Sum("quantity"))[
             "quantity__sum"
         ]
+
+    def natural_key(self):
+        return self.name
 
     def __str__(self):
         return self.name
